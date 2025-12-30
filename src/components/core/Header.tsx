@@ -1,4 +1,4 @@
-import { ShieldCheck, Download } from 'lucide-react';
+import { ShieldCheck, Download, Lock } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PaywallModal } from '../modals/PaywallModal';
@@ -20,7 +20,7 @@ export function Header({ onExport, isPaid, hasFile, file, redactions }: HeaderPr
     // Unpaid: Preview Mode · Watermark Applied
     // Paid: Export Mode · Watermark Removed
     const statusText = isPaid
-        ? "✓ Export Unlocked"
+        ? "✓ Session Active: Exports Unlocked (Do not close tab)"
         : "Preview Mode";
 
     return (
@@ -57,9 +57,10 @@ export function Header({ onExport, isPaid, hasFile, file, redactions }: HeaderPr
                         {!isPaid ? (
                             <button
                                 onClick={() => setShowPaywall(true)}
-                                className="px-4 py-2 rounded-lg font-medium transition-all bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+                                className="px-4 py-2 rounded-lg font-medium transition-all bg-blue-600 text-white hover:bg-blue-700 shadow-sm flex items-center gap-2"
                             >
-                                Unlock Export ($5)
+                                <Lock className="w-4 h-4" />
+                                Unlock Export
                             </button>
                         ) : (
                             // Only show Export PDF if file is loaded

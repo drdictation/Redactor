@@ -64,6 +64,12 @@ export function PaywallModal({ isOpen, onClose, file, redactions }: PaywallModal
                             </div>
                             <p className="text-gray-600 text-sm"><strong>Secure:</strong> Files processed 100% locally.</p>
                         </div>
+                        <div className="flex gap-3 items-start">
+                            <div className="mt-1 p-0.5 bg-green-100 rounded-full">
+                                <Check className="w-3 h-3 text-green-600" />
+                            </div>
+                            <p className="text-gray-600 text-sm"><strong>Unlimited Session:</strong> Redact & export multiple files in this tab.</p>
+                        </div>
                     </div>
 
                     {/* Pricing Box */}
@@ -75,7 +81,7 @@ export function PaywallModal({ isOpen, onClose, file, redactions }: PaywallModal
                                 Launch Offer
                             </span>
                         </div>
-                        <p className="text-blue-600/80 text-sm font-medium pt-1">One-time payment • No subscription</p>
+                        <p className="text-blue-600/80 text-sm font-medium pt-1">One-time payment • <strong>Unlimited session exports</strong></p>
                     </div>
 
                     {/* Action */}

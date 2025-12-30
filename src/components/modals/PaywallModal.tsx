@@ -1,7 +1,8 @@
 import { X, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { saveAppState } from '../../lib/storage';
 import type { Redaction } from '../../types';
+import { trackPurchaseInitiated, trackPaywallShown } from '../../lib/analytics';
 
 interface PaywallModalProps {
     isOpen: boolean;
@@ -12,6 +13,13 @@ interface PaywallModalProps {
 
 export function PaywallModal({ isOpen, onClose, file, redactions }: PaywallModalProps) {
     const [isLoading, setIsLoading] = useState(false);
+
+    // Track paywall shown when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            trackPaywallShown();
+        }
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -43,6 +51,7 @@ export function PaywallModal({ isOpen, onClose, file, redactions }: PaywallModal
                 <button
                     onClick={async () => {
                         setIsLoading(true);
+                        trackPurchaseInitiated(5.0);
                         try {
                             if (file) {
                                 console.log('[PaywallModal] File present, saving state...');

@@ -12,6 +12,13 @@ import { Header } from './Header';
 import { Loader2 } from 'lucide-react';
 import { loadAppState, clearAppState } from '../../lib/storage';
 import { Footer } from './Footer';
+import {
+    trackLandingPageView,
+    trackUploadStarted,
+    trackUploadCompleted,
+    trackPreviewRendered,
+    trackPurchaseCompleted,
+} from '../../lib/analytics';
 
 export function Workspace() {
     const location = useLocation();
@@ -41,15 +48,8 @@ export function Workspace() {
                         console.log('[Workspace] Payment verified by server.');
                         setIsPaid(true);
 
-                        // Fire Google Ads Conversion
-                        if (typeof window.gtag === 'function') {
-                            window.gtag('event', 'conversion', {
-                                'send_to': 'AW-17755885311/rtPjCMC9rNcbEP-d1ZJC',
-                                'value': 5.0,
-                                'currency': 'USD',
-                                'transaction_id': sessionId
-                            });
-                        }
+                        // Fire purchase conversion (GA4 + Google Ads, deduplicated)
+                        trackPurchaseCompleted(sessionId, 5.0);
 
                         // Restore state
                         const { file: savedFile, redactions: savedRedactions } = await loadAppState();
@@ -97,6 +97,10 @@ export function Workspace() {
 
     const handleFileSelect = async (selectedFile: File) => {
         setIsProcessing(true);
+
+        // Track upload started
+        trackUploadStarted(selectedFile.size, selectedFile.type);
+
         try {
             setFile(selectedFile);
             const doc = await loadPDF(selectedFile);
@@ -106,6 +110,10 @@ export function Workspace() {
                 loadedPages.push(await doc.getPage(i));
             }
             setPages(loadedPages);
+
+            // Track upload completed and preview rendered
+            trackUploadCompleted(loadedPages.length);
+            trackPreviewRendered(loadedPages.length);
 
             runAutoSuggest(loadedPages);
 
@@ -171,6 +179,13 @@ export function Workspace() {
     const removeRedaction = (id: string) => {
         setRedactions(prev => prev.filter(r => r.id !== id));
     };
+
+    // Track landing page view when no file is loaded (landing state)
+    useEffect(() => {
+        if (!file) {
+            trackLandingPageView(location.pathname);
+        }
+    }, [file, location.pathname]);
 
     if (!file) {
         return (

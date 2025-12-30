@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { Upload, FileWarning, Loader2 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { trackUploadCTAClick } from '../../lib/analytics';
 
 interface PDFUploaderProps {
     onFileSelect: (file: File) => void;
@@ -37,6 +38,7 @@ export function PDFUploader({ onFileSelect, isProcessing = false, ctaText = 'Sel
             return;
         }
         setError(null);
+        trackUploadCTAClick();
         onFileSelect(file);
     };
 

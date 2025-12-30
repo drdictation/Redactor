@@ -95,7 +95,7 @@ export function PageCanvas({
     return (
         <div
             ref={containerRef}
-            className="relative shadow-md inline-block bg-white mb-8 select-none"
+            className="relative shadow-md inline-block bg-white mb-8 select-none cursor-crosshair"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}

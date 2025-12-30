@@ -9,7 +9,7 @@ import type { Redaction } from '../../types';
 import { PDFUploader } from './PDFUploader';
 import { PageCanvas } from '../canvas/PageCanvas';
 import { Header } from './Header';
-import { Loader2 } from 'lucide-react';
+import { Loader2, MousePointerClick, X } from 'lucide-react';
 import { loadAppState, clearAppState } from '../../lib/storage';
 import { Footer } from './Footer';
 import {
@@ -32,6 +32,7 @@ export function Workspace() {
     const [exporting, setExporting] = useState(false);
     const [isPaid, setIsPaid] = useState(false);
     const [showResetConfirm, setShowResetConfirm] = useState(false);
+    const [showInstruction, setShowInstruction] = useState(true);
 
     useEffect(() => {
         const init = async () => {
@@ -138,6 +139,13 @@ export function Workspace() {
             setRedactions(prev => [...prev, ...newRedactions]);
         }
     };
+
+    // Auto-dismiss instruction when redactions are added
+    useEffect(() => {
+        if (redactions.length > 0) {
+            setShowInstruction(false);
+        }
+    }, [redactions]);
 
     const handleExport = async () => {
         if (!isPaid) return; // Security check: Prevent export for unpaid users
@@ -306,6 +314,27 @@ export function Workspace() {
 
                 <div className="h-20" /> {/* Spacer */}
             </div>
+
+            {/* Teaching Toast */}
+            {showInstruction && (
+                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 fade-in duration-700">
+                    <div className="bg-gray-900 text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-4 border border-gray-700">
+                        <div className="p-2 bg-blue-600 rounded-full animate-pulse">
+                            <MousePointerClick className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="font-bold text-sm">Start Redacting</span>
+                            <span className="text-xs text-gray-300">Click & drag anywhere to hide text</span>
+                        </div>
+                        <button
+                            onClick={() => setShowInstruction(false)}
+                            className="ml-2 hover:bg-gray-800 p-1 rounded-full transition-colors"
+                        >
+                            <X className="w-4 h-4 text-gray-400" />
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {exporting && (
                 <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center backdrop-blur-sm">

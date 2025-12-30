@@ -20,8 +20,8 @@ export function Header({ onExport, isPaid, hasFile, file, redactions }: HeaderPr
     // Unpaid: Preview Mode · Watermark Applied
     // Paid: Export Mode · Watermark Removed
     const statusText = isPaid
-        ? "Session Active · Valid until tab closed"
-        : "Preview Mode · Watermark Applied";
+        ? "✓ Export Unlocked"
+        : "Preview Mode";
 
     return (
         <>
@@ -59,7 +59,7 @@ export function Header({ onExport, isPaid, hasFile, file, redactions }: HeaderPr
                                 onClick={() => setShowPaywall(true)}
                                 className="px-4 py-2 rounded-lg font-medium transition-all bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
                             >
-                                Export Clean PDF ($5)
+                                Unlock Export ($5)
                             </button>
                         ) : (
                             // Only show Export PDF if file is loaded

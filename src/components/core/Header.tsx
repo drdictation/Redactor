@@ -20,22 +20,27 @@ export function Header({ onExport, isPaid, hasFile, file, redactions }: HeaderPr
     // Unpaid: Preview Mode · Watermark Applied
     // Paid: Export Mode · Watermark Removed
     const statusText = isPaid
-        ? "✓ Session Active: Exports Unlocked (Do not close tab)"
-        : "Preview Mode";
+        ? "Session Active · Valid until tab closed"
+        : "Preview Mode · Watermark Applied";
 
     return (
         <>
-            <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-sm">
+            <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur-sm">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-6">
                         <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                            <div className="p-2 bg-blue-100 rounded-lg">
-                                <ShieldCheck className="w-6 h-6 text-blue-600" />
+                            <div className="p-2 bg-gray-900 rounded-lg">
+                                <ShieldCheck className="w-5 h-5 text-green-400" />
                             </div>
                             <div>
                                 <h1 className="text-xl font-bold text-gray-900 tracking-tight">RedactPDF</h1>
                             </div>
                         </Link>
+
+                        <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-green-50 rounded-full border border-green-100">
+                            <Lock className="w-3 h-3 text-green-600" />
+                            <span className="text-xs font-semibold text-green-700 uppercase tracking-wide">Secure Mode: Offline</span>
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-4">

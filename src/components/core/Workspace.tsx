@@ -9,9 +9,11 @@ import type { Redaction } from '../../types';
 import { PDFUploader } from './PDFUploader';
 import { PageCanvas } from '../canvas/PageCanvas';
 import { Header } from './Header';
-import { Loader2, MousePointerClick, X } from 'lucide-react';
+import { Loader2, MousePointerClick, X, ShieldCheck, Lock, Download } from 'lucide-react';
 import { loadAppState, clearAppState } from '../../lib/storage';
 import { Footer } from './Footer';
+import { TrustMarquee } from './TrustMarquee';
+
 import {
     trackLandingPageView,
     trackUploadStarted,
@@ -200,16 +202,20 @@ export function Workspace() {
             <div className="min-h-screen flex flex-col bg-gray-50">
                 <Header isPaid={isPaid} hasFile={false} />
                 <div className="flex-1 flex flex-col items-center justify-center p-4 gap-12">
-                    <div className="text-center space-y-4 max-w-2xl mx-auto mt-8 sm:mt-16">
+                    <div className="text-center space-y-4 max-w-3xl mx-auto mt-6 sm:mt-10">
+                        {/* Security Hero Banner */}
+                        {routeConfig.securityHero && (
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-50 border border-green-200 rounded-full text-green-800 text-sm font-semibold animate-in slide-in-from-top-4 duration-700">
+                                <ShieldCheck className="w-4 h-4" />
+                                {routeConfig.securityHero}
+                            </div>
+                        )}
+
                         <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight">
                             {routeConfig.h1}
                         </h1>
-                        <p className="text-lg sm:text-xl text-gray-600 max-w-xl mx-auto leading-relaxed">
+                        <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
                             {routeConfig.subhead}
-                        </p>
-
-                        <p className="text-lg sm:text-lg font-medium text-gray-600 max-w-xl mx-auto leading-relaxed">
-                            {routeConfig.howThisWorks}
                         </p>
 
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border shadow-sm text-sm text-gray-600">
@@ -218,13 +224,23 @@ export function Workspace() {
                         </div>
                     </div>
 
+
                     <PDFUploader onFileSelect={handleFileSelect} isProcessing={isProcessing} ctaText={routeConfig.ctaText} />
 
-                    <div className="grid sm:grid-cols-3 gap-8 max-w-5xl w-full px-4 text-center">
-                        {routeConfig.whyThisMatters.map((bullet, idx) => (
-                            <div key={idx} className="space-y-2 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
-                                <div className="font-semibold text-gray-900 text-lg">{bullet.title}</div>
-                                <p className="text-base text-gray-500 leading-relaxed">{bullet.text}</p>
+                    <div className="w-full">
+                        <TrustMarquee />
+                    </div>
+
+                    <div className="grid sm:grid-cols-3 gap-6 max-w-5xl w-full px-4 text-center">
+                        {routeConfig.items.map((bullet, idx) => (
+                            <div key={idx} className="space-y-3 p-6 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                                <div className="font-bold text-gray-900 text-lg flex items-center justify-center gap-2">
+                                    {idx === 0 && <Lock className="w-5 h-5 text-blue-500" />}
+                                    {idx === 1 && <ShieldCheck className="w-5 h-5 text-green-500" />}
+                                    {idx === 2 && <Download className="w-5 h-5 text-purple-500" />}
+                                    {bullet.title}
+                                </div>
+                                <p className="text-sm text-gray-500 leading-relaxed">{bullet.text}</p>
                             </div>
                         ))}
                     </div>

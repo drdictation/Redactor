@@ -100,6 +100,8 @@ export function PaywallModal({ isOpen, onClose, file, redactions }: PaywallModal
 
                                     const response = await fetch('/api/create-checkout-session', {
                                         method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ productId: 'redactor' }),
                                     });
                                     const { url, error } = await response.json();
                                     if (url) {

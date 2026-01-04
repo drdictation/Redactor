@@ -12,7 +12,7 @@ interface LeakViewerProps {
 export const LeakViewer: React.FC<LeakViewerProps> = ({ pdf, pageNumber, leaks }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
-    const [scale, setScale] = React.useState(1.5); // Used for rendering scale
+    // scale removed
     const [viewport, setViewport] = React.useState<pdfjsLib.PageViewport | null>(null);
 
     useEffect(() => {
@@ -31,7 +31,7 @@ export const LeakViewer: React.FC<LeakViewerProps> = ({ pdf, pageNumber, leaks }
                 const wrapperWidth = wrapperRef.current?.clientWidth || 800;
                 const newScale = Math.min(1.5, (wrapperWidth - 32) / unscaledViewport.width); // Padding
 
-                setScale(newScale);
+                // scale state was unused, removing it to fix build error
                 const vp = page.getViewport({ scale: newScale });
                 setViewport(vp);
 

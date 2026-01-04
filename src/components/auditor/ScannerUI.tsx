@@ -9,7 +9,7 @@ import { LockedLeakViewer } from './LockedLeakViewer';
 import { LeakViewer } from './LeakViewer';
 import { loadAuditState, clearAuditState } from '../../lib/auditor/storage';
 import { generateAuditReport } from '../../lib/auditor/report';
-import { trackPurchaseCompleted } from '../../lib/analytics';
+import { trackPurchaseCompleted, trackScanInitiated, trackScanCompleted } from '../../lib/analytics';
 import { trackPaywallCTAClick } from '../analytics/GoogleAdsTracker';
 import { useDynamicHeadline } from '../../hooks/useDynamicHeadline';
 import { Search, ShieldAlert, Loader2, Lock, ShieldCheck, Download, CheckCircle } from 'lucide-react';
@@ -87,6 +87,10 @@ export const ScannerUI: React.FC = () => {
         setFile(selectedFile);
         setProgress('Loading Document...');
 
+        // Track scan initiation (privacy: only file size, not name)
+        trackScanInitiated(selectedFile.size);
+        const scanStartTime = Date.now();
+
         try {
             const proxy = await loadPDF(selectedFile);
             setPdfProxy(proxy);
@@ -96,6 +100,16 @@ export const ScannerUI: React.FC = () => {
 
             const scanResult = await scanPDF(proxy);
             setResult(scanResult);
+
+            // Track scan completion with metrics
+            const hasGhostText = scanResult.leaks?.some(l => l.id.startsWith('ghost-')) ?? false;
+            const hasMetadata = scanResult.leaks?.some(l => l.id.startsWith('meta-')) ?? false;
+            trackScanCompleted(
+                scanResult.leaks?.length ?? 0,
+                hasGhostText,
+                hasMetadata,
+                Date.now() - scanStartTime
+            );
 
         } catch (error) {
             console.error(error);

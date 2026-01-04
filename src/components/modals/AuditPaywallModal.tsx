@@ -1,6 +1,6 @@
 import { X, Loader2, ShieldCheck, Lock } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { trackPurchaseInitiated, trackPaywallShown } from '../../lib/analytics';
+import { trackAuditPaywallShown, trackAuditPurchaseClick } from '../../lib/analytics';
 import { saveAuditState } from '../../lib/auditor/storage';
 import type { ScanResult } from '../../lib/auditor/types';
 import { clsx } from 'clsx';
@@ -17,7 +17,7 @@ export function AuditPaywallModal({ isOpen, onClose, file, scanResult }: AuditPa
 
     useEffect(() => {
         if (isOpen) {
-            trackPaywallShown(); // You might want a specific event for this later, e.g., trackAuditPaywallShown
+            trackAuditPaywallShown();
         }
     }, [isOpen]);
 
@@ -72,34 +72,36 @@ export function AuditPaywallModal({ isOpen, onClose, file, scanResult }: AuditPa
                     <button
                         onClick={async () => {
                             setIsLoading(true);
-                            trackPurchaseInitiated(29.0);
-                            try {
-                                // Save state to IndexedDB before redirect
-                                if (file && scanResult) {
-                                    await saveAuditState(file, scanResult);
-                                }
 
-                                const response = await fetch('/api/create-checkout-session', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify({
-                                        productId: 'audit_report_29',
-                                    }),
-                                });
-                                const { url, error } = await response.json();
-                                if (url) {
-                                    window.location.href = url;
-                                } else {
-                                    throw new Error(error || 'Failed to create checkout session');
-                                }
-                            } catch (err: any) {
-                                console.error(err);
-                                alert('Payment service unavailable. Please try again later.');
-                            } finally {
-                                setIsLoading(false);
+                            // Save state to IndexedDB before redirect
+                            if (file && scanResult) {
+                                await saveAuditState(file, scanResult);
                             }
+
+                            // Track purchase click with callback to ensure event fires before redirect
+                            trackAuditPurchaseClick(async () => {
+                                try {
+                                    const response = await fetch('/api/create-checkout-session', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                            productId: 'audit_report_29',
+                                        }),
+                                    });
+                                    const { url, error } = await response.json();
+                                    if (url) {
+                                        window.location.href = url;
+                                    } else {
+                                        throw new Error(error || 'Failed to create checkout session');
+                                    }
+                                } catch (err: any) {
+                                    console.error(err);
+                                    alert('Payment service unavailable. Please try again later.');
+                                    setIsLoading(false);
+                                }
+                            });
                         }}
                         disabled={isLoading}
                         className={clsx(

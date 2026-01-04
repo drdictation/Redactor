@@ -134,3 +134,69 @@ export function trackPurchaseCompleted(transactionId: string, value: number): vo
         transactionId
     );
 }
+
+// ============================================
+// AUDITOR-SPECIFIC FUNNEL EVENTS
+// ============================================
+
+/**
+ * Track when user drops/selects a file to scan
+ * Privacy: Only tracks file size, NOT filename
+ */
+export function trackScanInitiated(fileSize: number): void {
+    trackOnce('scan_initiated', {
+        file_size: fileSize,
+        product: 'auditor'
+    });
+}
+
+/**
+ * Track scan completion with results
+ * This is critical for understanding product quality
+ */
+export function trackScanCompleted(
+    leaksFoundCount: number,
+    hasGhostText: boolean,
+    hasMetadata: boolean,
+    scanDurationMs: number
+): void {
+    trackOnce('scan_completed', {
+        leaks_found_count: leaksFoundCount,
+        has_ghost_text: hasGhostText,
+        has_metadata: hasMetadata,
+        scan_duration_ms: scanDurationMs,
+        product: 'auditor'
+    });
+}
+
+/**
+ * Track auditor paywall view (separate from redactor paywall)
+ */
+export function trackAuditPaywallShown(): void {
+    trackOnce('audit_paywall_shown', { product: 'auditor' });
+}
+
+/**
+ * Track $29 CTA click - THE critical conversion event for Google Ads
+ * Uses event_callback to ensure event fires before Stripe redirect
+ */
+export function trackAuditPurchaseClick(callback?: () => void): void {
+    trackOnce('audit_purchase_click', {
+        value: 29,
+        currency: 'USD',
+        product: 'auditor'
+    });
+
+    // Fire Google Ads conversion with callback to ensure it completes before redirect
+    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+        window.gtag('event', 'conversion', {
+            send_to: 'AW-17755885311/bdlVCLzXsdwbEP-d1ZJC',
+            value: 29.0,
+            currency: 'USD',
+            event_callback: callback
+        });
+    } else if (callback) {
+        callback();
+    }
+}
+

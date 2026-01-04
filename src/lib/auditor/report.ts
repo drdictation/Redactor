@@ -50,7 +50,7 @@ export async function generateAuditReport(fileName: string, result: ScanResult):
             thickness: 0.5,
             color: gray,
         });
-        page.drawText(`Page ${pageNum} | Certified by RedactPDF.com | ${new Date().toLocaleDateString()}`, {
+        page.drawText(`Page ${pageNum} | Certified by ReactPDF.com | ${new Date().toLocaleDateString()}`, {
             x: MARGIN_LEFT,
             y: 30,
             size: 8,

@@ -374,7 +374,7 @@ export const ScannerUI: React.FC = () => {
 
                     <div className="text-center pb-12">
                         <button
-                            onClick={() => { setResult(null); setPdfProxy(null); setFile(null); setIsPaid(false); }}
+                            onClick={() => { setResult(null); setPdfProxy(null); setFile(null); }}
                             className="text-slate-500 hover:text-indigo-600 font-medium text-sm"
                         >
                             Scan Another Document

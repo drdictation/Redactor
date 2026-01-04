@@ -2,7 +2,23 @@
     "rewrites": [
         {
             "source": "/((?!api/).*)",
-            "destination": "/"
+            "destination": "/",
+            "has": [
+                {
+                    "type": "host",
+                    "value": "audit.redactpdf.app"
+                }
+            ]
+        },
+        {
+            "source": "/((?!api/).*)",
+            "destination": "/",
+            "missing": [
+                {
+                    "type": "host",
+                    "value": "audit.redactpdf.app"
+                }
+            ]
         }
     ]
 }

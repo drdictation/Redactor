@@ -1,12 +1,31 @@
 import { Routes, Route } from 'react-router-dom';
+
 import { Workspace } from './components/core/Workspace';
+import { AuditorPage } from './components/auditor/AuditorPage';
 import { SEOEnforcer } from './components/core/SEOEnforcer';
 
+// Check if we're on the audit subdomain
+const isAuditSubdomain = typeof window !== 'undefined' &&
+  window.location.hostname.startsWith('audit.');
+
 function App() {
+  // If on audit subdomain, show only the Auditor
+  if (isAuditSubdomain) {
+    return (
+      <>
+        <SEOEnforcer />
+        <AuditorPage />
+      </>
+    );
+  }
+
+  // Otherwise, show the main redaction tool with routing
   return (
     <>
       <SEOEnforcer />
       <Routes>
+        <Route path="/auditor" element={<AuditorPage />} />
+        <Route path="/" element={<Workspace />} />
         <Route path="*" element={<Workspace />} />
       </Routes>
     </>

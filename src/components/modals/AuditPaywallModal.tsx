@@ -1,14 +1,18 @@
 import { X, Loader2, ShieldCheck, Lock } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { trackPurchaseInitiated, trackPaywallShown } from '../../lib/analytics';
+import { saveAuditState } from '../../lib/auditor/storage';
+import type { ScanResult } from '../../lib/auditor/types';
 import { clsx } from 'clsx';
 
 interface AuditPaywallModalProps {
     isOpen: boolean;
     onClose: () => void;
+    file?: File;
+    scanResult?: ScanResult;
 }
 
-export function AuditPaywallModal({ isOpen, onClose }: AuditPaywallModalProps) {
+export function AuditPaywallModal({ isOpen, onClose, file, scanResult }: AuditPaywallModalProps) {
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
@@ -70,14 +74,18 @@ export function AuditPaywallModal({ isOpen, onClose }: AuditPaywallModalProps) {
                             setIsLoading(true);
                             trackPurchaseInitiated(29.0);
                             try {
+                                // Save state to IndexedDB before redirect
+                                if (file && scanResult) {
+                                    await saveAuditState(file, scanResult);
+                                }
+
                                 const response = await fetch('/api/create-checkout-session', {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
                                     },
                                     body: JSON.stringify({
-                                        productId: 'audit_report_29', // Make sure backend handles this!
-                                        // If backend is generic, you might need to adjust or rely on price lookup
+                                        productId: 'audit_report_29',
                                     }),
                                 });
                                 const { url, error } = await response.json();

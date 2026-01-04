@@ -112,7 +112,7 @@ export function PageCanvas({
                 <>
                     <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center opacity-30 z-10">
                         <div className="transform -rotate-45 text-red-500 font-bold text-4xl sm:text-6xl whitespace-nowrap select-none border-4 border-red-500 p-4 rounded-xl">
-                            PREVIEW - REDACTPDF.COM
+                            PREVIEW - REACTPDF.APP
                         </div>
                     </div>
                     <div className="absolute bottom-2 right-2 z-30 bg-white/80 px-2 py-1 text-[10px] text-gray-500 rounded border shadow-sm pointer-events-none">

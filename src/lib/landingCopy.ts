@@ -27,7 +27,7 @@ export const ROUTE_CONFIG: Record<string, RouteConfig> = {
         howThisWorks: 'Load your PDF, destroy the data with permanent black boxes, and save a safe copy.',
         trustSignals: 'Bank-Level Privacy • Permanent Flattening • Zero Knowledge',
         ctaText: 'Select PDF to Redact Safely',
-        metaTitle: 'RedactPDF | Impossible to Reverse Redaction Tool',
+        metaTitle: 'ReactPDF | Impossible to Reverse Redaction Tool',
         metaDescription: 'Redact PDFs privately. We physically cannot see your files. Data is permanently destroyed and unrecoverable.',
     },
     '/redact-bank-statement': {

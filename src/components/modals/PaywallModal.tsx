@@ -50,7 +50,7 @@ export function PaywallModal({ isOpen, onClose, file, redactions }: PaywallModal
                             <div className="mt-1 p-0.5 bg-green-100 rounded-full">
                                 <Check className="w-3 h-3 text-green-600" />
                             </div>
-                            <p className="text-gray-600 text-sm"><strong>Clean Export:</strong> Remove "RedactPDF" watermarks.</p>
+                            <p className="text-gray-600 text-sm"><strong>Clean Export:</strong> Remove "ReactPDF" watermarks.</p>
                         </div>
                         <div className="flex gap-3 items-start">
                             <div className="mt-1 p-0.5 bg-green-100 rounded-full">

@@ -44,7 +44,7 @@ export async function exportRedactedPDF(
             ctx.textBaseline = 'middle';
             ctx.translate(width / 2, height / 2);
             ctx.rotate(-Math.PI / 4);
-            ctx.fillText('PREVIEW - REDACTPDF.COM', 0, 0);
+            ctx.fillText('PREVIEW - REACTPDF.APP', 0, 0);
             ctx.restore();
         }
 

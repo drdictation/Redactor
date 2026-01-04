@@ -18,8 +18,8 @@ export function Header({ onExport, isPaid, hasFile, file, redactions }: HeaderPr
 
     // Check if we are on the auditor subdomain
     const isAuditor = typeof window !== 'undefined' && window.location.hostname.startsWith('audit.');
-    const MAIN_URL = 'https://redactpdf.app';
-    const AUDITOR_URL = 'https://audit.redactpdf.app';
+    const MAIN_URL = 'https://reactpdf.app';
+    const AUDITOR_URL = 'https://audit.reactpdf.app';
 
     // Status text logic
     const statusText = isPaid
@@ -41,7 +41,7 @@ export function Header({ onExport, isPaid, hasFile, file, redactions }: HeaderPr
                                     <ShieldCheck className="w-5 h-5 text-green-400" />
                                 </div>
                                 <div>
-                                    <h1 className="text-xl font-bold text-gray-900 tracking-tight">RedactPDF</h1>
+                                    <h1 className="text-xl font-bold text-gray-900 tracking-tight">ReactPDF</h1>
                                     <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block -mt-1">Auditor</span>
                                 </div>
                             </a>
@@ -51,7 +51,7 @@ export function Header({ onExport, isPaid, hasFile, file, redactions }: HeaderPr
                                     <ShieldCheck className="w-5 h-5 text-green-400" />
                                 </div>
                                 <div>
-                                    <h1 className="text-xl font-bold text-gray-900 tracking-tight">RedactPDF</h1>
+                                    <h1 className="text-xl font-bold text-gray-900 tracking-tight">ReactPDF</h1>
                                 </div>
                             </Link>
                         )}

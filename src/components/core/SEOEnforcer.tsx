@@ -7,11 +7,11 @@ export function SEOEnforcer() {
     const routeConfig = getRouteConfig(location.pathname);
 
     // 1. Hostname Protection (Preview Indexing Mitigation)
-    // Replace 'redactpdf.com' with your actual production domain when known
+    // Replace 'reactpdf.app' with your actual production domain when known
     // For now, we assume anything with 'vercel.app' is a preview/staging env
     const isVercel = window.location.hostname.includes('vercel.app');
     // If we had a known prod domain, we'd act more strictly: 
-    // const isProduction = window.location.hostname === 'redactpdf.com';
+    // const isProduction = window.location.hostname === 'reactpdf.app';
     // const shouldNoIndex = !isProduction && isVercel;
 
     // Since we don't know the prod domain yet, we'll aggressively protect vercel.app domains

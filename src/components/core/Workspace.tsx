@@ -201,8 +201,8 @@ export function Workspace() {
         return (
             <div className="min-h-screen flex flex-col bg-gray-50">
                 <Header isPaid={isPaid} hasFile={false} />
-                <div className="flex-1 flex flex-col items-center justify-center p-4 gap-12">
-                    <div className="text-center space-y-4 max-w-3xl mx-auto mt-6 sm:mt-10">
+                <div className="flex-1 flex flex-col items-center justify-center p-4 gap-6">
+                    <div className="text-center space-y-3 max-w-3xl mx-auto mt-4 sm:mt-8">
                         {/* Security Hero Banner */}
                         {routeConfig.securityHero && (
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-50 border border-green-200 rounded-full text-green-800 text-sm font-semibold animate-in slide-in-from-top-4 duration-700">

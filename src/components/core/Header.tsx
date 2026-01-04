@@ -65,34 +65,49 @@ export function Header({ onExport, isPaid, hasFile, file, redactions }: HeaderPr
                     <div className="flex items-center gap-4">
                         {/* Navigation Links */}
                         {!isAuditor ? (
-                            <a
-                                href={AUDITOR_URL}
-                                className="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-indigo-50"
-                            >
-                                <ShieldCheck className="w-4 h-4" />
-                                Verify / Audit PDF
-                            </a>
+                            // Show "Audit PDF" link when on main app
+                            // Use local route in dev, external URL in production
+                            import.meta.env.DEV ? (
+                                <Link
+                                    to="/auditor"
+                                    className="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-indigo-50"
+                                >
+                                    <ShieldCheck className="w-4 h-4" />
+                                    Audit Your PDF
+                                </Link>
+                            ) : (
+                                <a
+                                    href={AUDITOR_URL}
+                                    className="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-indigo-50"
+                                >
+                                    <ShieldCheck className="w-4 h-4" />
+                                    Audit Your PDF
+                                </a>
+                            )
                         ) : (
                             // Link back to Redactor from Auditor
                             <a
                                 href={MAIN_URL}
                                 className="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-100"
                             >
-                                ← Back to Redactor
+                                ← Redact Your PDF
                             </a>
                         )}
 
                         <div className="h-6 w-px bg-slate-200 hidden sm:block"></div>
 
-                        <div className="hidden sm:block text-sm text-gray-500">
-                            {isPaid ? (
-                                <span className="text-green-600 font-medium flex items-center gap-1">
-                                    {statusText}
-                                </span>
-                            ) : (
-                                <span>{statusText}</span>
-                            )}
-                        </div>
+                        {/* Status Text - Only show on Main App */}
+                        {!isAuditor && (
+                            <div className="hidden sm:block text-sm text-gray-500">
+                                {isPaid ? (
+                                    <span className="text-green-600 font-medium flex items-center gap-1">
+                                        {statusText}
+                                    </span>
+                                ) : (
+                                    <span>{statusText}</span>
+                                )}
+                            </div>
+                        )}
 
                         {/* CTA Buttons - Only show on Main App (Redactor) */}
                         {!isAuditor && (

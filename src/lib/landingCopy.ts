@@ -166,6 +166,23 @@ export const ROUTE_CONFIG: Record<string, RouteConfig> = {
         metaTitle: 'Redact Medical & Lab Records | HIPAA Safe',
         metaDescription: 'Black out sensitive patient info. We physically cannot see your records. 100% client-side privacy.',
     },
+    '/auditor': {
+        path: '/auditor',
+        primarySearchIntent: 'Check if PDF redaction is leaking data',
+        h1: 'Your Redactions are Leaking. We\'ll Prove It.',
+        securityHero: 'Scan happens 100% in your browser.',
+        subhead: 'Most PDF tools leave hidden text behind that anyone can copy. Drop your file—we\'ll find what they missed.',
+        items: [
+            { title: 'Find Ghost Text', text: 'Detect hidden text layers under black boxes.' },
+            { title: 'Expose Metadata', text: 'Names, dates, and edits often leak in PDF metadata.' },
+            { title: 'Zero Upload', text: 'Your file never leaves your device. 100% client-side.' },
+        ],
+        howThisWorks: 'Drop your PDF, we scan for hidden text and metadata leaks, and show you exactly what\'s exposed.',
+        trustSignals: 'Zero Server Upload • Client-Side Only • Certified Reports',
+        ctaText: 'Scan PDF for Leaks',
+        metaTitle: 'PDF Redaction Auditor | Find Hidden Text Under Black Boxes',
+        metaDescription: 'Your PDF redactions may be leaking data. Scan for hidden text and metadata that anyone can copy. 100% client-side, no uploads.',
+    },
 };
 
 export function getRouteConfig(pathname: string): RouteConfig {

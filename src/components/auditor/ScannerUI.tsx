@@ -4,18 +4,20 @@ import { loadPDF } from '../../lib/pdf-engine';
 import { scanPDF } from '../../lib/auditor/scanner';
 import type { ScanResult } from '../../lib/auditor/types';
 import { PDFDropZone } from './PDFDropZone';
-import { TrustSignal } from './TrustSignal';
 import { AuditPaywallModal } from '../modals/AuditPaywallModal';
 import { LockedLeakViewer } from './LockedLeakViewer';
 import { LeakViewer } from './LeakViewer';
 import { loadAuditState, clearAuditState } from '../../lib/auditor/storage';
 import { generateAuditReport } from '../../lib/auditor/report';
 import { trackPurchaseCompleted } from '../../lib/analytics';
+import { trackPaywallCTAClick } from '../analytics/GoogleAdsTracker';
+import { useDynamicHeadline } from '../../hooks/useDynamicHeadline';
 import { Search, ShieldAlert, Loader2, Lock, ShieldCheck, Download, CheckCircle } from 'lucide-react';
 
 const AUDIT_SESSION_KEY = 'audit_session_paid';
 
 export const ScannerUI: React.FC = () => {
+    const headline = useDynamicHeadline();
     const [isScanning, setIsScanning] = useState(false);
     const [result, setResult] = useState<ScanResult | null>(null);
     const [pdfProxy, setPdfProxy] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
@@ -152,15 +154,50 @@ export const ScannerUI: React.FC = () => {
 
             {!result && !isScanning && (
                 <>
-                    <div className="text-center space-y-4 mb-8">
-                        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
-                            Your Redactions are Leaking. <br />
-                            <span className="text-red-600">We'll Prove It.</span>
+                    <div className="text-center space-y-6 mb-10">
+                        {/* Product Label */}
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full border border-slate-200 text-xs font-medium text-slate-600 uppercase tracking-wider">
+                            <Search className="w-3 h-3" />
+                            PDF Redaction Auditor
+                        </div>
+
+                        {/* Main Headline - Dynamic based on ?target= URL param */}
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                            {headline.mainText} <br />
+                            <span className="bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">{headline.emphasisText}</span>
                         </h1>
-                        <TrustSignal />
+
+                        {/* Subtitle - Benefits Focused */}
+                        <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+                            Adobe, Word, and most tools leave <strong className="text-slate-800">hidden text</strong> behind that anyone can copy/paste.
+                            Drop your PDF — we'll scan it <strong className="text-slate-800">100% locally</strong> and find what they missed.
+                        </p>
+
+                        {/* Inline Trust Indicators */}
+                        <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+                            <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+                                <ShieldCheck className="w-4 h-4" />
+                                <span className="font-medium">100% Private</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200">
+                                <Lock className="w-4 h-4" />
+                                <span className="font-medium">No Upload</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-amber-700 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200">
+                                <ShieldAlert className="w-4 h-4" />
+                                <span className="font-medium">Ghost Text Detection</span>
+                            </div>
+                        </div>
                     </div>
 
                     <PDFDropZone onFileSelect={handleFileSelect} />
+
+                    {/* Additional Trust Below CTA */}
+                    <div className="mt-6 text-center">
+                        <p className="text-xs text-slate-400">
+                            🔒 Your file never leaves your browser. Zero server upload. Works offline.
+                        </p>
+                    </div>
                 </>
             )}
 
@@ -357,7 +394,10 @@ export const ScannerUI: React.FC = () => {
                                     }
                                 </p>
                                 <button
-                                    onClick={() => setIsPaywallOpen(true)}
+                                    onClick={() => {
+                                        trackPaywallCTAClick();
+                                        setIsPaywallOpen(true);
+                                    }}
                                     className="inline-flex items-center gap-2 bg-white text-indigo-900 font-bold py-4 px-8 rounded-xl text-lg hover:bg-indigo-50 transition-colors shadow-lg shadow-indigo-900/50 transform hover:-translate-y-0.5"
                                 >
                                     Unlock Unlimited Audits ($29)

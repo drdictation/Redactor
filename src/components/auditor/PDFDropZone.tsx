@@ -71,22 +71,22 @@ export const PDFDropZone: React.FC<PDFDropZoneProps> = ({ onFileSelect, isScanni
                     {error ? <AlertTriangle className="w-8 h-8 text-amber-500" /> : <Upload className="w-8 h-8" />}
                 </div>
 
-                <div>
-                    <h3 className="text-xl font-semibold text-slate-800 mb-2">
-                        {error ? <span className="text-red-500">{error}</span> : "Drop your Redacted PDF here"}
+                <div className="text-center">
+                    <h3 className="text-xl font-bold text-slate-800 mb-2">
+                        {error ? <span className="text-red-500">{error}</span> : "Is your redaction actually safe?"}
                     </h3>
-                    <p className="text-slate-500 max-w-md mx-auto">
-                        Standard redaction tools often leave 'Ghost Text' and hidden metadata.
-                        <br />
-                        Use our local-only scanner to audit your files before you hit send.
+                    <p className="text-slate-500 max-w-md mx-auto text-sm leading-relaxed">
+                        Drop your redacted PDF here. We'll scan every layer for hidden text,
+                        metadata leaks, and anything that could expose sensitive information.
                     </p>
                 </div>
 
-                <div className="mt-4">
-                    <span className="inline-flex items-center px-4 py-2 rounded-lg bg-white border border-slate-200 text-sm font-medium text-slate-700 shadow-sm group-hover:border-indigo-300 group-hover:text-indigo-600 transition-colors">
+                <div className="mt-4 flex flex-col items-center gap-3">
+                    <span className="inline-flex items-center px-6 py-3 rounded-xl bg-indigo-600 text-white text-sm font-semibold shadow-lg shadow-indigo-200 group-hover:bg-indigo-700 group-hover:shadow-indigo-300 transition-all transform group-hover:-translate-y-0.5">
                         <FileText className="w-4 h-4 mr-2" />
-                        Select PDF
+                        Scan My PDF for Leaks
                     </span>
+                    <span className="text-xs text-slate-400">or drag and drop</span>
                 </div>
             </div>
         </div>

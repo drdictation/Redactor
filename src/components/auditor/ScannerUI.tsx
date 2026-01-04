@@ -58,9 +58,6 @@ export const ScannerUI: React.FC = () => {
 
     // For MVP transparency, show the first page with a ghost text leak
     const leakPage = ghostTextLeaks.length > 0 ? ghostTextLeaks[0].pageNumber : null;
-    const leaksOnPage = leakPage && ghostTextLeaks.length > 0
-        ? ghostTextLeaks.filter(l => l.pageNumber === leakPage)
-        : [];
 
     return (
         <div className="space-y-8">

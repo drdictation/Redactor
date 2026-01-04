@@ -75,12 +75,10 @@ export const PDFDropZone: React.FC<PDFDropZoneProps> = ({ onFileSelect, isScanni
                     <h3 className="text-xl font-semibold text-slate-800 mb-2">
                         {error ? <span className="text-red-500">{error}</span> : "Drop your Redacted PDF here"}
                     </h3>
-                    <p className="text-slate-500 max-w-sm mx-auto">
-                        We'll scan for ghost text, metadata, and hidden layers.
+                    <p className="text-slate-500 max-w-md mx-auto">
+                        Standard redaction tools often leave 'Ghost Text' and hidden metadata.
                         <br />
-                        <span className="text-xs font-medium text-slate-400 mt-2 block">
-                            (100% Client-Side Processing)
-                        </span>
+                        Use our local-only scanner to audit your files before you hit send.
                     </p>
                 </div>
 

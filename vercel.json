@@ -1,24 +1,19 @@
+/*
+ * Vercel configuration for the RedactPDF Auditor subdomain
+ * Maps any request to audit.redactpdf.app to the /auditor route
+ * while keeping the main domain pointing to the root.
+ */
 {
     "rewrites": [
         {
-            "source": "/((?!api/).*)",
-            "destination": "/",
+            "source": "/:path*",
             "has": [
                 {
                     "type": "host",
-                    "value": "audit.reactpdf.app"
+                    "value": "audit.redactpdf.app"
                 }
-            ]
-        },
-        {
-            "source": "/((?!api/).*)",
-            "destination": "/",
-            "missing": [
-                {
-                    "type": "host",
-                    "value": "audit.reactpdf.app"
-                }
-            ]
+            ],
+            "destination": "/auditor/:path*"
         }
     ]
 }

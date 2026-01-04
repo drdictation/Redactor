@@ -44,19 +44,27 @@ function getIntersectionRatio(boxA: BoundingBox, boxB: BoundingBox): number {
 
 // Extract RGB from fill style args
 function getRGBFromStyle(args: any[]): { r: number, g: number, b: number } | null {
-    // Basic support for 'DeviceRGB' or similar. 
-    // args might be [r, g, b] (0-1) or strings.
-    // pdf.js simplifies colors usually.
-    // If args length is 3, assume RGB 0-1
+    // Check if args is null/undefined
+    if (!args) return null;
+
+    // Handle single color object (e.g. {r, g, b}) - PDF.js sometimes does this
+    if (args.length === 1 && typeof args[0] === 'object' && args[0] !== null) {
+        // Not typical but defensive
+        return null;
+    }
+
+    // Standard PDF-JS args handling
+    // If args is a TypedArray or Array:
+    // RGB (3 args)
     if (args.length === 3) {
         return { r: args[0] * 255, g: args[1] * 255, b: args[2] * 255 };
     }
-    // Grayscale
-    if (args.length === 1) {
+    // Grayscale (1 arg)
+    if (args.length === 1 && typeof args[0] === 'number') {
         const val = args[0] * 255;
         return { r: val, g: val, b: val };
     }
-    // CMYK (4 args) - simplistic conversion
+    // CMYK (4 args)
     if (args.length === 4) {
         const c = args[0], m = args[1], y = args[2], k = args[3];
         const r = 255 * (1 - c) * (1 - k);
@@ -486,6 +494,31 @@ export async function scanPDF(pdf: pdfjsLib.PDFDocumentProxy): Promise<ScanResul
             // B. Parse Operators to find "Redaction" candidates (Dark Fills)
             let currentFillColor = { r: 0, g: 0, b: 0 }; // Default black
 
+            // CTM (Current Transformation Matrix) stack for tracking transforms
+            // [a, b, c, d, e, f] -> transforms (x, y) to (ax + cy + e, bx + dy + f)
+            let ctm = [1, 0, 0, 1, 0, 0]; // Identity matrix
+            const ctmStack: number[][] = [];
+
+            // Helper to apply CTM to a point
+            const applyCtm = (x: number, y: number, matrix: number[]): [number, number] => {
+                const [a, b, c, d, e, f] = matrix;
+                return [a * x + c * y + e, b * x + d * y + f];
+            };
+
+            // Helper to multiply two matrices
+            const multiplyCtm = (m1: number[], m2: number[]): number[] => {
+                const [a1, b1, c1, d1, e1, f1] = m1;
+                const [a2, b2, c2, d2, e2, f2] = m2;
+                return [
+                    a1 * a2 + c1 * b2,
+                    b1 * a2 + d1 * b2,
+                    a1 * c2 + c1 * d2,
+                    b1 * c2 + d1 * d2,
+                    a1 * e2 + c1 * f2 + e1,
+                    b1 * e2 + d1 * f2 + f1
+                ];
+            };
+
             // Loop through ops
             if (DEBUG) {
                 // Log all operator IDs to see what we're working with
@@ -503,6 +536,19 @@ export async function scanPDF(pdf: pdfjsLib.PDFDocumentProxy): Promise<ScanResul
                 const fn = ops.fnArray[j];
                 const args = ops.argsArray[j];
 
+                // Handle CTM operations
+                if (fn === pdfjsLib.OPS.save) {
+                    ctmStack.push([...ctm]);
+                } else if (fn === pdfjsLib.OPS.restore) {
+                    ctm = ctmStack.pop() || [1, 0, 0, 1, 0, 0];
+                } else if (fn === pdfjsLib.OPS.transform) {
+                    // transform(a, b, c, d, e, f) - concatenate matrix
+                    if (args && args.length >= 6) {
+                        ctm = multiplyCtm(ctm, args);
+                        if (DEBUG) log(`Page ${i}: transform applied, CTM now:`, ctm);
+                    }
+                }
+
                 // setFillColor
                 if (fn === pdfjsLib.OPS.setFillRGBColor || fn === pdfjsLib.OPS.setFillColor) {
                     const color = getRGBFromStyle(args);
@@ -513,7 +559,7 @@ export async function scanPDF(pdf: pdfjsLib.PDFDocumentProxy): Promise<ScanResul
                 } else if (fn === pdfjsLib.OPS.setFillGray) {
                     const gray = args[0] * 255;
                     currentFillColor = { r: gray, g: gray, b: gray };
-                    if (DEBUG) log(`Page ${i}: setFillGray`, currentFillColor);
+                    if (DEBUG) log(`Page ${i}: setFillGray (Val: ${args[0]}) ->`, currentFillColor);
                 } else if (fn === pdfjsLib.OPS.setFillCMYKColor) {
                     // Handle CMYK fill color
                     const c = args[0], m = args[1], y = args[2], k = args[3];
@@ -532,19 +578,130 @@ export async function scanPDF(pdf: pdfjsLib.PDFDocumentProxy): Promise<ScanResul
                     const w = args[2];
                     const h = args[3];
 
+                    // Apply CTM to get actual page coordinates
+                    const [tx, ty] = applyCtm(x, y, ctm);
+                    const [tx2, ty2] = applyCtm(x + w, y + h, ctm);
+                    const actualX = Math.min(tx, tx2);
+                    const actualY = Math.min(ty, ty2);
+                    const actualW = Math.abs(tx2 - tx);
+                    const actualH = Math.abs(ty2 - ty);
+
                     // Check luminance
                     const lum = getLuminance(currentFillColor.r, currentFillColor.g, currentFillColor.b);
-                    if (DEBUG) log(`Page ${i}: Rectangle at`, { x, y, w, h, lum, color: currentFillColor });
+                    if (DEBUG) log(`Page ${i}: Rectangle found at [${x},${y},${w},${h}] -> transformed to [${actualX},${actualY},${actualW},${actualH}] with Fill Color: ${JSON.stringify(currentFillColor)} Luminance: ${lum}`);
+
                     if (lum < 0.05) { // < 5% luminance
-                        blackRects.push({ x, y, width: w, height: h });
-                        log(`Page ${i}: BLACK Rectangle accepted`, { x, y, w, h });
+                        blackRects.push({ x: actualX, y: actualY, width: actualW, height: actualH });
+                        log(`Page ${i}: BLACK Rectangle accepted`, { x: actualX, y: actualY, w: actualW, h: actualH });
                     }
                 }
 
                 // Also check constructPath which is used for more complex paths
                 if (fn === pdfjsLib.OPS.constructPath) {
-                    if (DEBUG) log(`Page ${i}: constructPath found`, args);
+                    if (DEBUG) log(`Page ${i}: constructPath raw args:`, JSON.stringify(args));
+
+                    try {
+                        const pathOps = args[0];
+                        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                        let hasPoints = false;
+
+                        // Case 1: pathOps is a single integer (e.g. 22 = rectangle)
+                        // Allow 22 explicitly as fallback for standard standard RE
+                        if ((typeof pathOps === 'number' && pathOps === pdfjsLib.OPS.rectangle) || pathOps === 22) {
+
+                            // Search args[1] and args[2] etc for coordinates
+                            // The user logs show args[0]=22, args[1]=[...], args[2]={...}
+                            // We iterate all args to find a rect-like structure
+                            for (let k = 1; k < args.length; k++) {
+                                let potentialRect = args[k];
+
+                                // Handle PDF.js arguments which might be objects {0:x, 1:y...} instead of Arrays
+                                if (potentialRect && typeof potentialRect === 'object') {
+                                    // Try to normalize to array [x, y, w, h]
+                                    // Check keys 0, 1, 2, 3
+                                    if ('0' in potentialRect && '1' in potentialRect && '2' in potentialRect && '3' in potentialRect) {
+                                        // It's likely a rect object
+                                        const r = [
+                                            Number(potentialRect['0']),
+                                            Number(potentialRect['1']),
+                                            Number(potentialRect['2']),
+                                            Number(potentialRect['3'])
+                                        ];
+                                        potentialRect = r;
+                                        if (DEBUG) log(`Page ${i}: Normalized rect object at args[${k}] to`, r);
+                                    } else if (!Array.isArray(potentialRect)) {
+                                        // Maybe it has numeric keys but not string keys?
+                                        if (potentialRect[0] !== undefined && potentialRect[3] !== undefined) {
+                                            const r = [
+                                                Number(potentialRect[0]),
+                                                Number(potentialRect[1]),
+                                                Number(potentialRect[2]),
+                                                Number(potentialRect[3])
+                                            ];
+                                            potentialRect = r;
+                                        }
+                                    }
+                                }
+
+                                // Now check if it's a valid rect array [x, y, w, h]
+                                if (Array.isArray(potentialRect) && potentialRect.length >= 4) {
+                                    const x = potentialRect[0];
+                                    const y = potentialRect[1];
+                                    const w = potentialRect[2];
+                                    const h = potentialRect[3];
+
+                                    if (!isNaN(x) && !isNaN(y) && !isNaN(w) && !isNaN(h)) {
+                                        minX = x; minY = y; maxX = x + w; maxY = y + h;
+                                        hasPoints = true;
+                                        if (DEBUG) log(`Page ${i}: Found valid rect in constructPath args[${k}]`, { x, y, w, h });
+                                        break; // Found the rect, stop searching args
+                                    }
+                                }
+                            }
+                        }
+                        // Case 2: standard constructPath (ops array + coords array)
+                        else if (Array.isArray(pathOps) && args[1]) {
+                            const pathCoords = args[1];
+                            if (pathCoords && pathCoords.length) {
+                                for (let k = 0; k < pathCoords.length; k += 2) {
+                                    const x = pathCoords[k];
+                                    const y = pathCoords[k + 1];
+                                    if (typeof x === 'number' && typeof y === 'number') {
+                                        minX = Math.min(minX, x);
+                                        minY = Math.min(minY, y);
+                                        maxX = Math.max(maxX, x);
+                                        maxY = Math.max(maxY, y);
+                                        hasPoints = true;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (hasPoints) {
+                            // Apply CTM to transform to page coordinates
+                            const [tx1, ty1] = applyCtm(minX, minY, ctm);
+                            const [tx2, ty2] = applyCtm(maxX, maxY, ctm);
+                            const actualX = Math.min(tx1, tx2);
+                            const actualY = Math.min(ty1, ty2);
+                            const actualW = Math.abs(tx2 - tx1);
+                            const actualH = Math.abs(ty2 - ty1);
+
+                            // Check if it's black
+                            const lum = getLuminance(currentFillColor.r, currentFillColor.g, currentFillColor.b);
+
+                            if (DEBUG) log(`Page ${i}: Path Bounds: [${minX}, ${minY}] -> [${actualX}, ${actualY}, ${actualW}, ${actualH}], Lum: ${lum}, CTM: ${JSON.stringify(ctm)}`);
+
+                            // Accept if dark enough
+                            if (lum < 0.05 && actualW > 2 && actualH > 2) {
+                                blackRects.push({ x: actualX, y: actualY, width: actualW, height: actualH });
+                                log(`Page ${i}: BLACK Path accepted as Rect (transformed)`, { x: actualX, y: actualY, width: actualW, height: actualH });
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error parsing constructPath', e);
+                    }
                 }
+
 
                 // Also check paintImageXObject (images can be used as redaction)
                 if (fn === pdfjsLib.OPS.paintImageXObject || fn === pdfjsLib.OPS.paintImageXObjectRepeat) {

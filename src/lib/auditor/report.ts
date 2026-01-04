@@ -2,6 +2,18 @@ import { PDFDocument, rgb, StandardFonts, PDFPage } from 'pdf-lib';
 import type { ScanResult } from './types';
 
 /**
+ * Sanitize text for PDF generation - remove non-printable characters
+ * that WinAnsi encoding cannot handle
+ */
+function sanitizeText(text: string): string {
+    // Remove control characters (0x00-0x1F except tab/newline/carriage return)
+    // and other non-printable chars that WinAnsi can't encode
+    return text
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '') // Control chars
+        .replace(/[^\x20-\x7E\xA0-\xFF]/g, '?'); // Replace other non-WinAnsi with ?
+}
+
+/**
  * Generate a comprehensive multi-page PDF Audit Report from scan results
  */
 export async function generateAuditReport(fileName: string, result: ScanResult): Promise<Uint8Array> {
@@ -81,7 +93,7 @@ export async function generateAuditReport(fileName: string, result: ScanResult):
     });
     y -= 25;
 
-    page.drawText(`Document: ${fileName}`, {
+    page.drawText(`Document: ${sanitizeText(fileName)}`, {
         x: MARGIN_LEFT,
         y,
         size: 11,
@@ -154,7 +166,7 @@ export async function generateAuditReport(fileName: string, result: ScanResult):
             ({ page, y } = checkNewPage(y, LINE_HEIGHT + 5, page));
 
             page.drawText('•', { x: MARGIN_LEFT, y, size: 10, font: helvetica, color: red });
-            page.drawText(nameMatch.match, { x: MARGIN_LEFT + 15, y, size: 10, font: helveticaBold, color: black });
+            page.drawText(sanitizeText(nameMatch.match), { x: MARGIN_LEFT + 15, y, size: 10, font: helveticaBold, color: black });
 
             const sourceText = `(Type: ${nameMatch.type}, Page ${nameMatch.pageNumber})`;
             page.drawText(sourceText, { x: 300, y, size: 8, font: helvetica, color: gray });
@@ -210,7 +222,7 @@ export async function generateAuditReport(fileName: string, result: ScanResult):
             ({ page, y } = checkNewPage(y, LINE_HEIGHT + 5, page));
 
             // Truncate description if too long
-            let desc = leak.description;
+            let desc = sanitizeText(leak.description);
             if (desc.length > 80) {
                 desc = desc.slice(0, 77) + '...';
             }

@@ -9,6 +9,10 @@
                 }
             ],
             "destination": "/auditor/:path*"
+        },
+        {
+            "source": "/((?!api|assets|favicon|.*\\..*).*)",
+            "destination": "/index.html"
         }
     ]
 }

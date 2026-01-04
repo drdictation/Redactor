@@ -1,8 +1,8 @@
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { PDFDocument, rgb, StandardFonts, PDFPage } from 'pdf-lib';
 import type { ScanResult } from './types';
 
 /**
- * Generate a PDF Audit Report from scan results
+ * Generate a comprehensive multi-page PDF Audit Report from scan results
  */
 export async function generateAuditReport(fileName: string, result: ScanResult): Promise<Uint8Array> {
     const pdfDoc = await PDFDocument.create();
@@ -15,66 +15,88 @@ export async function generateAuditReport(fileName: string, result: ScanResult):
     const red = rgb(0.8, 0.2, 0.2);
     const green = rgb(0.2, 0.6, 0.3);
     const blue = rgb(0.2, 0.4, 0.7);
+    const orange = rgb(0.8, 0.5, 0.2);
 
-    // Page setup
-    const page = pdfDoc.addPage([612, 792]); // Letter size
-    const { width, height } = page.getSize();
-    let y = height - 50;
+    // Page dimensions
+    const PAGE_WIDTH = 612;
+    const PAGE_HEIGHT = 792;
+    const MARGIN_LEFT = 50;
+    const MARGIN_TOP = 50;
+    const MARGIN_BOTTOM = 60;
+    const LINE_HEIGHT = 16;
 
-    // Header
+    // Helper to add a new page
+    const addPage = (): { page: PDFPage; y: number } => {
+        const page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+        return { page, y: PAGE_HEIGHT - MARGIN_TOP };
+    };
+
+    // Helper to check if we need a new page
+    const checkNewPage = (currentY: number, needed: number, currentPage: PDFPage): { page: PDFPage; y: number } => {
+        if (currentY - needed < MARGIN_BOTTOM) {
+            // Add footer to current page
+            drawFooter(currentPage);
+            return addPage();
+        }
+        return { page: currentPage, y: currentY };
+    };
+
+    // Draw footer on a page
+    const drawFooter = (page: PDFPage) => {
+        const pageNum = pdfDoc.getPageCount();
+        page.drawLine({
+            start: { x: MARGIN_LEFT, y: 45 },
+            end: { x: PAGE_WIDTH - MARGIN_LEFT, y: 45 },
+            thickness: 0.5,
+            color: gray,
+        });
+        page.drawText(`Page ${pageNum} | Certified by RedactPDF.com | ${new Date().toLocaleDateString()}`, {
+            x: MARGIN_LEFT,
+            y: 30,
+            size: 8,
+            font: helvetica,
+            color: gray,
+        });
+    };
+
+    // Start first page
+    let { page, y } = addPage();
+
+    // ========== HEADER ==========
     page.drawText('CERTIFIED DOCUMENT AUDIT REPORT', {
-        x: 50,
+        x: MARGIN_LEFT,
         y,
-        size: 18,
+        size: 20,
         font: helveticaBold,
         color: blue,
     });
-    y -= 25;
+    y -= 30;
 
     page.drawText(`Generated: ${new Date().toLocaleString()}`, {
-        x: 50,
+        x: MARGIN_LEFT,
         y,
         size: 10,
         font: helvetica,
         color: gray,
     });
-    y -= 40;
+    y -= 25;
 
-    // Document Info
-    page.drawText('Document Analyzed:', {
-        x: 50,
+    page.drawText(`Document: ${fileName}`, {
+        x: MARGIN_LEFT,
         y,
-        size: 12,
+        size: 11,
         font: helveticaBold,
         color: black,
     });
-    y -= 18;
+    y -= 40;
 
-    page.drawText(fileName, {
-        x: 50,
-        y,
-        size: 11,
-        font: helvetica,
-        color: gray,
-    });
-    y -= 35;
-
-    // Summary Section
-    page.drawText('AUDIT SUMMARY', {
-        x: 50,
+    // ========== SUMMARY BOX ==========
+    page.drawText('EXECUTIVE SUMMARY', {
+        x: MARGIN_LEFT,
         y,
         size: 14,
         font: helveticaBold,
         color: black,
-    });
-    y -= 5;
-
-    // Draw underline
-    page.drawLine({
-        start: { x: 50, y },
-        end: { x: 250, y },
-        thickness: 1,
-        color: gray,
     });
     y -= 25;
 
@@ -83,112 +105,174 @@ export async function generateAuditReport(fileName: string, result: ScanResult):
     const mediumLeaks = result.leaks.filter(l => l.severity === 'MEDIUM').length;
 
     const summaryItems = [
-        { label: 'Total Issues Found:', value: String(result.leaks.length), color: result.leaks.length > 0 ? red : green },
+        { label: 'Total Vulnerabilities:', value: String(result.leaks.length), color: result.leaks.length > 0 ? red : green },
         { label: 'Critical (Ghost Text):', value: String(criticalLeaks), color: criticalLeaks > 0 ? red : green },
-        { label: 'High Severity:', value: String(highLeaks), color: highLeaks > 0 ? red : green },
-        { label: 'Medium Severity:', value: String(mediumLeaks), color: mediumLeaks > 0 ? red : green },
-        { label: 'Redaction Zones Scanned:', value: String(result.redactionCount), color: gray },
-        { label: 'Security Score:', value: `${result.score}/100`, color: result.score >= 80 ? green : result.score >= 50 ? rgb(0.8, 0.6, 0.2) : red },
+        { label: 'High Severity:', value: String(highLeaks), color: highLeaks > 0 ? orange : green },
+        { label: 'Medium Severity:', value: String(mediumLeaks), color: mediumLeaks > 0 ? orange : green },
+        { label: 'Redaction Zones Found:', value: String(result.redactionCount), color: gray },
+        { label: 'Names Detected:', value: String(result.namesFound?.length ?? 0), color: (result.namesFound?.length ?? 0) > 0 ? red : green },
+        { label: 'Security Score:', value: `${result.score}/100`, color: result.score >= 80 ? green : result.score >= 50 ? orange : red },
     ];
 
     for (const item of summaryItems) {
-        page.drawText(item.label, {
-            x: 50,
-            y,
-            size: 11,
-            font: helvetica,
-            color: black,
-        });
-        page.drawText(item.value, {
-            x: 200,
-            y,
-            size: 11,
-            font: helveticaBold,
-            color: item.color,
-        });
-        y -= 18;
+        page.drawText(item.label, { x: MARGIN_LEFT, y, size: 10, font: helvetica, color: black });
+        page.drawText(item.value, { x: 180, y, size: 10, font: helveticaBold, color: item.color });
+        y -= LINE_HEIGHT;
     }
     y -= 20;
 
-    // Findings Section
-    if (result.leaks.length > 0) {
-        page.drawText('DETAILED FINDINGS', {
-            x: 50,
+    // ========== NAMES DETECTED SECTION ==========
+    if (result.namesFound && result.namesFound.length > 0) {
+        ({ page, y } = checkNewPage(y, 60, page));
+
+        page.drawText('IDENTITY FINGERPRINTS DETECTED', {
+            x: MARGIN_LEFT,
             y,
             size: 14,
             font: helveticaBold,
-            color: black,
+            color: red,
         });
         y -= 5;
         page.drawLine({
-            start: { x: 50, y },
-            end: { x: 250, y },
+            start: { x: MARGIN_LEFT, y },
+            end: { x: 300, y },
             thickness: 1,
+            color: red,
+        });
+        y -= 20;
+
+        page.drawText('The following names/identifiers were found in document metadata or text layers:', {
+            x: MARGIN_LEFT,
+            y,
+            size: 9,
+            font: helvetica,
             color: gray,
         });
-        y -= 25;
+        y -= 18;
 
-        for (const leak of result.leaks.slice(0, 15)) { // Limit to 15 per page
-            const severityColor = leak.severity === 'CRITICAL' ? red : leak.severity === 'HIGH' ? rgb(0.8, 0.4, 0.2) : gray;
+        for (const nameMatch of result.namesFound) {
+            ({ page, y } = checkNewPage(y, LINE_HEIGHT + 5, page));
 
-            page.drawText(`[${leak.severity}]`, {
-                x: 50,
-                y,
-                size: 9,
-                font: helveticaBold,
-                color: severityColor,
-            });
+            page.drawText('•', { x: MARGIN_LEFT, y, size: 10, font: helvetica, color: red });
+            page.drawText(nameMatch.match, { x: MARGIN_LEFT + 15, y, size: 10, font: helveticaBold, color: black });
+
+            const sourceText = `(Type: ${nameMatch.type}, Page ${nameMatch.pageNumber})`;
+            page.drawText(sourceText, { x: 300, y, size: 8, font: helvetica, color: gray });
+            y -= LINE_HEIGHT;
+        }
+        y -= 15;
+    }
+
+    // ========== DETAILED FINDINGS SECTION ==========
+    ({ page, y } = checkNewPage(y, 60, page));
+
+    page.drawText('DETAILED VULNERABILITY FINDINGS', {
+        x: MARGIN_LEFT,
+        y,
+        size: 14,
+        font: helveticaBold,
+        color: black,
+    });
+    y -= 5;
+    page.drawLine({
+        start: { x: MARGIN_LEFT, y },
+        end: { x: 350, y },
+        thickness: 1,
+        color: gray,
+    });
+    y -= 20;
+
+    // Group by severity for better readability
+    const groupedLeaks = {
+        CRITICAL: result.leaks.filter(l => l.severity === 'CRITICAL'),
+        HIGH: result.leaks.filter(l => l.severity === 'HIGH'),
+        MEDIUM: result.leaks.filter(l => l.severity === 'MEDIUM'),
+        LOW: result.leaks.filter(l => l.severity === 'LOW'),
+    };
+
+    for (const [severity, leaks] of Object.entries(groupedLeaks)) {
+        if (leaks.length === 0) continue;
+
+        ({ page, y } = checkNewPage(y, 40, page));
+
+        const severityColor = severity === 'CRITICAL' ? red : severity === 'HIGH' ? orange : gray;
+
+        page.drawText(`${severity} (${leaks.length} items)`, {
+            x: MARGIN_LEFT,
+            y,
+            size: 11,
+            font: helveticaBold,
+            color: severityColor,
+        });
+        y -= 18;
+
+        for (const leak of leaks) {
+            ({ page, y } = checkNewPage(y, LINE_HEIGHT + 5, page));
 
             // Truncate description if too long
-            const desc = leak.description.length > 60 ? leak.description.slice(0, 57) + '...' : leak.description;
-            page.drawText(desc, {
-                x: 110,
-                y,
-                size: 9,
-                font: helvetica,
-                color: black,
-            });
+            let desc = leak.description;
+            if (desc.length > 80) {
+                desc = desc.slice(0, 77) + '...';
+            }
+
+            page.drawText('•', { x: MARGIN_LEFT + 10, y, size: 9, font: helvetica, color: severityColor });
+            page.drawText(desc, { x: MARGIN_LEFT + 25, y, size: 9, font: helvetica, color: black });
 
             if (leak.pageNumber && leak.pageNumber > 0) {
                 page.drawText(`Page ${leak.pageNumber}`, {
-                    x: 520,
+                    x: PAGE_WIDTH - MARGIN_LEFT - 50,
                     y,
-                    size: 9,
+                    size: 8,
                     font: helvetica,
                     color: gray,
                 });
             }
 
-            y -= 16;
-
-            if (y < 100) break; // Stop before running off page
+            y -= LINE_HEIGHT;
         }
+        y -= 10;
     }
 
-    // Footer
-    y = 50;
-    page.drawLine({
-        start: { x: 50, y: y + 15 },
-        end: { x: width - 50, y: y + 15 },
-        thickness: 0.5,
-        color: gray,
+    // ========== CERTIFICATION STATEMENT ==========
+    ({ page, y } = checkNewPage(y, 80, page));
+    y -= 20;
+
+    page.drawRectangle({
+        x: MARGIN_LEFT - 10,
+        y: y - 60,
+        width: PAGE_WIDTH - (MARGIN_LEFT * 2) + 20,
+        height: 70,
+        borderColor: green,
+        borderWidth: 1,
+        color: rgb(0.95, 1, 0.95),
     });
 
-    page.drawText('This report was generated by RedactPDF Audit. For compliance purposes only.', {
-        x: 50,
-        y,
-        size: 8,
-        font: helvetica,
-        color: gray,
+    page.drawText('CERTIFICATION STATEMENT', {
+        x: MARGIN_LEFT,
+        y: y - 15,
+        size: 11,
+        font: helveticaBold,
+        color: green,
     });
 
-    page.drawText('© RedactPDF.com', {
-        x: width - 120,
-        y,
-        size: 8,
+    page.drawText('This document has been analyzed using automated security scanning technology.', {
+        x: MARGIN_LEFT,
+        y: y - 32,
+        size: 9,
         font: helvetica,
-        color: gray,
+        color: black,
     });
+
+    page.drawText('This report serves as proof of due diligence for compliance and legal purposes.', {
+        x: MARGIN_LEFT,
+        y: y - 45,
+        size: 9,
+        font: helvetica,
+        color: black,
+    });
+
+    // Add footer to last page
+    drawFooter(page);
 
     const pdfBytes = await pdfDoc.save();
     return pdfBytes;

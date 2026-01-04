@@ -13,6 +13,8 @@ import { generateAuditReport } from '../../lib/auditor/report';
 import { trackPurchaseCompleted } from '../../lib/analytics';
 import { Search, ShieldAlert, Loader2, Lock, ShieldCheck, Download, CheckCircle } from 'lucide-react';
 
+const AUDIT_SESSION_KEY = 'audit_session_paid';
+
 export const ScannerUI: React.FC = () => {
     const [isScanning, setIsScanning] = useState(false);
     const [result, setResult] = useState<ScanResult | null>(null);
@@ -20,7 +22,10 @@ export const ScannerUI: React.FC = () => {
     const [file, setFile] = useState<File | null>(null);
     const [progress, setProgress] = useState<string>('');
     const [isPaywallOpen, setIsPaywallOpen] = useState(false);
-    const [isPaid, setIsPaid] = useState(false);
+    const [isPaid, setIsPaid] = useState(() => {
+        // Check sessionStorage on initial load for existing session
+        return sessionStorage.getItem(AUDIT_SESSION_KEY) === 'true';
+    });
     const [isDownloading, setIsDownloading] = useState(false);
 
     // On mount: check for payment return and restore state
@@ -39,6 +44,8 @@ export const ScannerUI: React.FC = () => {
                     if (res.ok && data.verified) {
                         console.log('[AuditScanner] Payment verified!');
                         setIsPaid(true);
+                        // Store in sessionStorage for unlimited session access
+                        sessionStorage.setItem(AUDIT_SESSION_KEY, 'true');
                         trackPurchaseCompleted(sessionId, 29.0);
 
                         // Restore state from IndexedDB
@@ -353,10 +360,10 @@ export const ScannerUI: React.FC = () => {
                                     onClick={() => setIsPaywallOpen(true)}
                                     className="inline-flex items-center gap-2 bg-white text-indigo-900 font-bold py-4 px-8 rounded-xl text-lg hover:bg-indigo-50 transition-colors shadow-lg shadow-indigo-900/50 transform hover:-translate-y-0.5"
                                 >
-                                    Get Certified Audit Report ($29)
+                                    Unlock Unlimited Audits ($29)
                                 </button>
                                 <p className="text-xs text-indigo-300">
-                                    Official compliance receipt included for legal/HR records.
+                                    Scan unlimited documents this session • Official compliance receipt included
                                 </p>
                             </div>
                             <div className="absolute top-0 right-0 p-12 opacity-10">

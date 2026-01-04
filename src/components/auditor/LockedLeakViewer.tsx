@@ -87,7 +87,7 @@ export const LockedLeakViewer: React.FC<LockedLeakViewerProps> = ({ pdf, pageNum
                         onClick={onUnlock}
                         className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-lg shadow-indigo-600/20"
                     >
-                        Unlock Full Report ($29)
+                        Unlock Unlimited Audits ($29)
                     </button>
                 </div>
             </div>

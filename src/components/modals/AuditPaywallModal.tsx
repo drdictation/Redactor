@@ -41,7 +41,7 @@ export function AuditPaywallModal({ isOpen, onClose, file, scanResult }: AuditPa
                             <X className="w-5 h-5" />
                         </button>
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-900 mt-2">Unlock Certified Report</h2>
+                    <h2 className="text-2xl font-bold text-slate-900 mt-2">Unlock Unlimited Audits</h2>
                 </div>
 
                 <div className="p-6 space-y-6">
@@ -65,7 +65,7 @@ export function AuditPaywallModal({ isOpen, onClose, file, scanResult }: AuditPa
                         <div className="flex items-center justify-center gap-2 text-slate-900">
                             <span className="text-3xl font-bold tracking-tight">$29.00</span>
                         </div>
-                        <p className="text-indigo-600/80 text-sm font-medium">One-time audit fee • <strong>Official Receipt Included</strong></p>
+                        <p className="text-indigo-600/80 text-sm font-medium">Unlimited audits this session • <strong>Reports Included</strong></p>
                     </div>
 
                     {/* Action */}

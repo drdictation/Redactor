@@ -5,7 +5,7 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://redactpdf.app/sitemap.xml
+Sitemap: https://reactpdf.app/sitemap.xml
 
 # Disallow API endpoints
 Disallow: /api/

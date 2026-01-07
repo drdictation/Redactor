@@ -20,7 +20,7 @@ export const UnredactPage: React.FC = () => {
                     <div className="flex items-center justify-between">
                         <a href="/" className="flex items-center gap-2 text-green-400 hover:text-green-300 transition-colors">
                             <Shield className="w-6 h-6" />
-                            <span className="font-bold text-lg">RedactPDF</span>
+                            <span className="font-bold text-lg">ReactPDF</span>
                             <span className="text-xs text-green-600 font-mono">/ forensics</span>
                         </a>
                         <a
@@ -48,7 +48,7 @@ export const UnredactPage: React.FC = () => {
                 <div className="container mx-auto px-4 py-8">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-green-700">
                         <p className="font-mono">
-                            © {new Date().getFullYear()} RedactPDF. All rights reserved.
+                            © {new Date().getFullYear()} ReactPDF. All rights reserved.
                         </p>
                         <div className="flex items-center gap-6 font-mono">
                             <a href="/" className="hover:text-green-400 transition-colors">

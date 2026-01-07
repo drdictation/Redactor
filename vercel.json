@@ -5,7 +5,7 @@
             "has": [
                 {
                     "type": "host",
-                    "value": "audit.redactpdf.app"
+                    "value": "audit.reactpdf.app"
                 }
             ],
             "destination": "/auditor/:path*"

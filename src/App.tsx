@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 
 import { Workspace } from './components/core/Workspace';
 import { AuditorPage } from './components/auditor/AuditorPage';
+import { UnredactPage } from './components/unredact/UnredactPage';
 import { SEOEnforcer } from './components/core/SEOEnforcer';
 
 // Check if we're on the audit subdomain
@@ -25,6 +26,7 @@ function App() {
       <SEOEnforcer />
       <Routes>
         <Route path="/auditor" element={<AuditorPage />} />
+        <Route path="/unredact" element={<UnredactPage />} />
         <Route path="/" element={<Workspace />} />
         <Route path="*" element={<Workspace />} />
       </Routes>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import { loadPDF } from '../../lib/pdf-engine';
 import { scanPDF } from '../../lib/auditor/scanner';
+import { sanitizePDF } from '../../lib/auditor/sanitizer';
 import type { ScanResult } from '../../lib/auditor/types';
 import { PDFDropZone } from './PDFDropZone';
 import { AuditPaywallModal } from '../modals/AuditPaywallModal';
@@ -12,7 +13,7 @@ import { generateAuditReport } from '../../lib/auditor/report';
 import { trackPurchaseCompleted, trackScanInitiated, trackScanCompleted } from '../../lib/analytics';
 import { trackPaywallCTAClick } from '../analytics/GoogleAdsTracker';
 import { useDynamicHeadline } from '../../hooks/useDynamicHeadline';
-import { Search, ShieldAlert, Loader2, Lock, ShieldCheck, Download, CheckCircle } from 'lucide-react';
+import { Search, ShieldAlert, Loader2, Lock, ShieldCheck, Download, CheckCircle, Sparkles } from 'lucide-react';
 
 const AUDIT_SESSION_KEY = 'audit_session_paid';
 
@@ -29,6 +30,7 @@ export const ScannerUI: React.FC = () => {
         return sessionStorage.getItem(AUDIT_SESSION_KEY) === 'true';
     });
     const [isDownloading, setIsDownloading] = useState(false);
+    const [isSanitizing, setIsSanitizing] = useState(false);
 
     // On mount: check for payment return and restore state
     useEffect(() => {
@@ -139,6 +141,28 @@ export const ScannerUI: React.FC = () => {
             alert('Failed to generate report. Please try again.');
         } finally {
             setIsDownloading(false);
+        }
+    };
+
+    const handleSanitize = async () => {
+        if (!file) return;
+        setIsSanitizing(true);
+        try {
+            const pdfBytes = await sanitizePDF(file);
+            const blob = new Blob([pdfBytes as unknown as BlobPart], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Sanitized-${file.name}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error('Error sanitizing PDF:', err);
+            alert('Failed to sanitize PDF. Please try again.');
+        } finally {
+            setIsSanitizing(false);
         }
     };
 
@@ -370,22 +394,46 @@ export const ScannerUI: React.FC = () => {
                     {isPaid ? (
                         <div className="bg-green-900 rounded-2xl p-8 text-center text-white shadow-xl relative overflow-hidden">
                             <div className="relative z-10 space-y-6">
-                                <h3 className="text-2xl font-bold">Download Your Certified Report</h3>
+                                <h3 className="text-2xl font-bold">Your Full Report is Unlocked</h3>
                                 <p className="text-green-100 max-w-lg mx-auto">
-                                    Your official audit certificate is ready. This serves as proof of due diligence for your compliance records.
+                                    Download your audit certificate or get a fully sanitized copy with all leaks removed.
                                 </p>
-                                <button
-                                    onClick={handleDownloadReport}
-                                    disabled={isDownloading}
-                                    className="inline-flex items-center gap-2 bg-white text-green-900 font-bold py-4 px-8 rounded-xl text-lg hover:bg-green-50 transition-colors shadow-lg"
-                                >
-                                    {isDownloading ? (
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                    ) : (
-                                        <Download className="w-5 h-5" />
+
+                                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                    {/* Audit Report Download */}
+                                    <button
+                                        onClick={handleDownloadReport}
+                                        disabled={isDownloading}
+                                        className="inline-flex items-center justify-center gap-2 bg-white text-green-900 font-bold py-4 px-6 rounded-xl text-base hover:bg-green-50 transition-colors shadow-lg"
+                                    >
+                                        {isDownloading ? (
+                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                        ) : (
+                                            <Download className="w-5 h-5" />
+                                        )}
+                                        {isDownloading ? 'Generating...' : 'Audit Report (PDF)'}
+                                    </button>
+
+                                    {/* Sanitized PDF Download - Only show if leaks were found */}
+                                    {(hasCriticalLeaks || hasWarnings) && (
+                                        <button
+                                            onClick={handleSanitize}
+                                            disabled={isSanitizing}
+                                            className="inline-flex items-center justify-center gap-2 bg-emerald-500 text-white font-bold py-4 px-6 rounded-xl text-base hover:bg-emerald-400 transition-colors shadow-lg"
+                                        >
+                                            {isSanitizing ? (
+                                                <Loader2 className="w-5 h-5 animate-spin" />
+                                            ) : (
+                                                <Sparkles className="w-5 h-5" />
+                                            )}
+                                            {isSanitizing ? 'Sanitizing...' : 'Download Sanitized PDF'}
+                                        </button>
                                     )}
-                                    {isDownloading ? 'Generating...' : 'Download Audit Report (PDF)'}
-                                </button>
+                                </div>
+
+                                <p className="text-xs text-green-200">
+                                    Sanitized PDFs are rasterized (no hidden text) with all metadata stripped.
+                                </p>
                             </div>
                             <div className="absolute top-0 right-0 p-12 opacity-10">
                                 <ShieldCheck className="w-64 h-64" />

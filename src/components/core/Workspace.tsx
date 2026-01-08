@@ -245,6 +245,45 @@ export function Workspace() {
                         ))}
                     </div>
 
+                    {/* Unique Content Section - SEO: Avoids doorway page penalty */}
+                    {routeConfig.uniqueContent && (
+                        <div className="w-full max-w-4xl mx-auto px-4 py-12 space-y-8">
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
+                                <h2 className="text-2xl font-bold text-gray-900">
+                                    {routeConfig.uniqueContent.title}
+                                </h2>
+                                <div className="prose prose-gray max-w-none">
+                                    {routeConfig.uniqueContent.paragraphs.map((paragraph, idx) => (
+                                        <p key={idx} className="text-gray-600 leading-relaxed mb-4">
+                                            {paragraph}
+                                        </p>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* FAQ Section */}
+                            {routeConfig.uniqueContent.faq && routeConfig.uniqueContent.faq.length > 0 && (
+                                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
+                                    <h2 className="text-xl font-bold text-gray-900">
+                                        Frequently Asked Questions
+                                    </h2>
+                                    <div className="space-y-6">
+                                        {routeConfig.uniqueContent.faq.map((item, idx) => (
+                                            <div key={idx} className="border-b border-gray-100 pb-6 last:border-0 last:pb-0">
+                                                <h3 className="font-semibold text-gray-900 mb-2">
+                                                    {item.question}
+                                                </h3>
+                                                <p className="text-gray-600 text-sm leading-relaxed">
+                                                    {item.answer}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                     <div className="flex-1" /> {/* Spacer */}
                     <Footer />
                 </div>

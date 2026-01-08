@@ -31,6 +31,46 @@ const DEFAULT_SEO: AuditorSEOMeta = {
     canonicalPath: '/auditor',
 };
 
+// FAQ Schema for rich snippets
+const FAQ_SCHEMA = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "What is ghost text in a redacted PDF?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Ghost text is hidden text that remains under black redaction boxes. While visually hidden, this text can be selected, copied, or extracted by anyone with a PDF reader. Most PDF tools only draw a black box over text without removing the underlying data."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Why do PDF redactions leak data?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Many PDF tools (including Adobe Acrobat annotations and Mac Preview) use 'overlay redaction' which draws a visual layer over text. The actual text data remains in the PDF structure. True redaction requires removing the text data and flattening the document."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Is this audit tool safe to use with sensitive documents?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. This tool runs 100% in your browser (client-side). Your PDF is never uploaded to any server. The scanning happens locally using JavaScript, and you can verify this by disconnecting from the internet and using the tool offline."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "What types of documents should I audit?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Any document that has been redacted before sharing: court filings, FOIA responses, bank statements, medical records, HR documents, legal contracts, and government documents. These are common targets for data extraction attacks."
+            }
+        }
+    ]
+};
+
 /**
  * Dynamic SEO component for the Auditor page.
  * Adjusts meta tags based on ?target= URL parameter for Google Ads campaigns.
@@ -58,9 +98,16 @@ export function AuditorSEO() {
             <meta property="og:description" content={seo.description} />
             <meta property="og:url" content={`${window.location.origin}/auditor`} />
             <meta property="og:type" content="website" />
+            <meta property="og:image" content={`${window.location.origin}/og-image.png`} />
 
             {/* NoIndex for preview deployments */}
             {isVercel && <meta name="robots" content="noindex" />}
+
+            {/* FAQ Schema for Rich Snippets */}
+            <script type="application/ld+json">
+                {JSON.stringify(FAQ_SCHEMA)}
+            </script>
         </Helmet>
     );
 }
+

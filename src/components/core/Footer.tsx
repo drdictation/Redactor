@@ -16,6 +16,18 @@ export function Footer() {
                 <Link to="/redact-rental-application" className="hover:text-gray-900 transition-colors">
                     Redact Rental Application
                 </Link>
+                <Link to="/redact-passport" className="hover:text-gray-900 transition-colors">
+                    Redact Passport
+                </Link>
+                <Link to="/redact-financial-documents" className="hover:text-gray-900 transition-colors">
+                    Redact Financial Docs
+                </Link>
+                <Link to="/redact-legal-documents" className="hover:text-gray-900 transition-colors">
+                    Redact Legal Docs
+                </Link>
+                <Link to="/redact-medical-records" className="hover:text-gray-900 transition-colors">
+                    Redact Medical Records
+                </Link>
             </div>
         </footer>
     );

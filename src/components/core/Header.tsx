@@ -41,7 +41,7 @@ export function Header({ onExport, isPaid, hasFile, file, redactions }: HeaderPr
                                     <ShieldCheck className="w-5 h-5 text-green-400" />
                                 </div>
                                 <div>
-                                    <h1 className="text-xl font-bold text-gray-900 tracking-tight">ReactPDF</h1>
+                                    <span className="text-xl font-bold text-gray-900 tracking-tight">ReactPDF</span>
                                     <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block -mt-1">Auditor</span>
                                 </div>
                             </a>
@@ -51,7 +51,7 @@ export function Header({ onExport, isPaid, hasFile, file, redactions }: HeaderPr
                                     <ShieldCheck className="w-5 h-5 text-green-400" />
                                 </div>
                                 <div>
-                                    <h1 className="text-xl font-bold text-gray-900 tracking-tight">ReactPDF</h1>
+                                    <span className="text-xl font-bold text-gray-900 tracking-tight">ReactPDF</span>
                                 </div>
                             </Link>
                         )}

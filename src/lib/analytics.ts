@@ -13,7 +13,7 @@ const DEBUG = import.meta.env.DEV ||
     (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('debug_analytics'));
 
 interface EventParams {
-    [key: string]: string | number | boolean | undefined;
+    [key: string]: any;
 }
 
 /**
@@ -160,6 +160,7 @@ export function trackScanCompleted(
     hasMetadata: boolean,
     scanDurationMs: number
 ): void {
+    // 1. Fire generic GA4 event
     trackOnce('scan_completed', {
         leaks_found_count: leaksFoundCount,
         has_ghost_text: hasGhostText,
@@ -167,6 +168,14 @@ export function trackScanCompleted(
         scan_duration_ms: scanDurationMs,
         product: 'auditor'
     });
+
+    // 2. Fire Google Ads Conversion for "Audit Scanned" (Lead/Engagement)
+    // NOTE: Replace 'PLACEHOLDER_LABEL' with the actual label from Google Ads
+    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+        window.gtag('event', 'conversion', {
+            send_to: 'AW-17755885311/PLACEHOLDER_LABEL',
+        });
+    }
 }
 
 /**
@@ -181,13 +190,25 @@ export function trackAuditPaywallShown(): void {
  * Uses event_callback to ensure event fires before Stripe redirect
  */
 export function trackAuditPurchaseClick(callback?: () => void): void {
+    // 1. Fire standard GA4 e-commerce event
+    trackOnce('begin_checkout', {
+        value: 29,
+        currency: 'USD',
+        items: [{
+            item_id: 'audit_report_29',
+            item_name: 'Certified Audit Report',
+            price: 29
+        }]
+    });
+
+    // 2. Fire existing custom event for backward compatibility
     trackOnce('audit_purchase_click', {
         value: 29,
         currency: 'USD',
         product: 'auditor'
     });
 
-    // Fire Google Ads conversion with callback to ensure it completes before redirect
+    // 3. Fire Google Ads conversion
     if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
         window.gtag('event', 'conversion', {
             send_to: 'AW-17755885311/bdlVCLzXsdwbEP-d1ZJC',

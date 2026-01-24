@@ -474,13 +474,34 @@ export const ScannerUI: React.FC = () => {
                         </div>
                     )}
 
-                    <div className="text-center pb-12">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pb-12">
                         <button
                             onClick={() => { setResult(null); setPdfProxy(null); setFile(null); }}
                             className="text-slate-500 hover:text-indigo-600 font-medium text-sm"
                         >
                             Scan Another Document
                         </button>
+
+                        <div className="h-4 w-px bg-slate-300 hidden sm:block"></div>
+
+                        <a
+                            href={import.meta.env.DEV ? '/' : 'https://reactpdf.app'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-bold text-sm bg-indigo-50 px-4 py-2 rounded-full border border-indigo-100 transition-colors"
+                        >
+                            {hasCriticalLeaks || hasWarnings ? (
+                                <>
+                                    <ShieldCheck className="w-4 h-4" />
+                                    <span>Fix Leaks with Redactor</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Sparkles className="w-4 h-4" />
+                                    <span>Redact Another Document</span>
+                                </>
+                            )}
+                        </a>
                     </div>
                 </div>
             )}

@@ -70,6 +70,8 @@ export function Header({ onExport, isPaid, hasFile, file, redactions }: HeaderPr
                             import.meta.env.DEV ? (
                                 <Link
                                     to="/auditor"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-indigo-50"
                                 >
                                     <ShieldCheck className="w-4 h-4" />
@@ -78,6 +80,8 @@ export function Header({ onExport, isPaid, hasFile, file, redactions }: HeaderPr
                             ) : (
                                 <a
                                     href={AUDITOR_URL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-indigo-50"
                                 >
                                     <ShieldCheck className="w-4 h-4" />
@@ -88,6 +92,8 @@ export function Header({ onExport, isPaid, hasFile, file, redactions }: HeaderPr
                             // Link back to Redactor from Auditor
                             <a
                                 href={MAIN_URL}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-100"
                             >
                                 ← Redact Your PDF

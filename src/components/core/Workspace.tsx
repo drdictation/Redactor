@@ -310,7 +310,19 @@ export function Workspace() {
                     <span className="text-xs text-gray-500">Limits: up to 10 pages, 10MB</span>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4">
+                    <a
+                        href={import.meta.env.DEV ? '/auditor' : 'https://audit.reactpdf.app'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hidden sm:flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+                    >
+                        <ShieldCheck className="w-3 h-3" />
+                        Verify
+                    </a>
+
+                    <div className="h-4 w-px bg-slate-300 hidden sm:block"></div>
+
                     <button
                         onClick={() => setShowResetConfirm(true)}
                         className="text-sm text-red-600 hover:text-red-700 font-medium px-3 py-1"

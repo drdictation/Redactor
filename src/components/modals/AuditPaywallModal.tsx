@@ -45,18 +45,45 @@ export function AuditPaywallModal({ isOpen, onClose, file, scanResult }: AuditPa
                 </div>
 
                 <div className="p-6 space-y-6">
-                    {/* Compliance/Value Props */}
-                    <div className="space-y-4">
-                        <p className="text-slate-600 text-sm leading-relaxed">
-                            To view the full contents of the hidden text leaks and generate a <strong>Certified Sanitization Report</strong> for your compliance records, please complete your purchase.
-                        </p>
-
-                        <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 flex gap-3">
-                            <Lock className="w-5 h-5 text-amber-600 shrink-0" />
-                            <div className="text-xs text-amber-800">
-                                <strong>Why is this locked?</strong><br />
-                                Detailed leak content is sensitive. We require verified access to generate the official legal/HR compliance receipt.
+                    {/* Personalized Findings from Scan */}
+                    {scanResult && (scanResult.leaks?.length ?? 0) + (scanResult.namesFound?.length ?? 0) > 0 ? (
+                        <div className="space-y-4">
+                            <p className="text-slate-600 text-sm font-medium">We found the following in <strong>your document</strong>:</p>
+                            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-2.5 text-sm">
+                                {(scanResult.leaks?.filter(l => l.severity === 'CRITICAL').length ?? 0) > 0 && (
+                                    <div className="flex items-center gap-2 text-red-700">
+                                        <span className="w-2 h-2 bg-red-500 rounded-full shrink-0" />
+                                        <span><strong>{scanResult.leaks?.filter(l => l.severity === 'CRITICAL').length}</strong> Ghost Text instance{(scanResult.leaks?.filter(l => l.severity === 'CRITICAL').length ?? 0) !== 1 ? 's' : ''} — copy-pasteable text under redaction boxes</span>
+                                    </div>
+                                )}
+                                {(scanResult.namesFound?.length ?? 0) > 0 && (
+                                    <div className="flex items-center gap-2 text-orange-700">
+                                        <span className="w-2 h-2 bg-orange-500 rounded-full shrink-0" />
+                                        <span><strong>{scanResult.namesFound?.length}</strong> identity fingerprint{(scanResult.namesFound?.length ?? 0) !== 1 ? 's' : ''}: {scanResult.namesFound?.slice(0, 2).map(n => `"${n.match.substring(0, 3)}•••"`).join(', ')}{(scanResult.namesFound?.length ?? 0) > 2 ? ` +${(scanResult.namesFound?.length ?? 0) - 2} more` : ''}</span>
+                                    </div>
+                                )}
+                                {(scanResult.leaks?.filter(l => l.severity !== 'CRITICAL').length ?? 0) > 0 && (
+                                    <div className="flex items-center gap-2 text-amber-700">
+                                        <span className="w-2 h-2 bg-amber-500 rounded-full shrink-0" />
+                                        <span><strong>{scanResult.leaks?.filter(l => l.severity !== 'CRITICAL').length}</strong> metadata field{(scanResult.leaks?.filter(l => l.severity !== 'CRITICAL').length ?? 0) !== 1 ? 's' : ''} exposing document origin</span>
+                                    </div>
+                                )}
                             </div>
+                            <p className="text-slate-500 text-xs">Unlock the full report to see exactly what's exposed and get a sanitized copy.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            <p className="text-slate-600 text-sm leading-relaxed">
+                                Generate a <strong>Certified Sanitization Report</strong> for your compliance records, proving this document has been verified clean.
+                            </p>
+                        </div>
+                    )}
+
+                    <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 flex gap-3">
+                        <Lock className="w-5 h-5 text-amber-600 shrink-0" />
+                        <div className="text-xs text-amber-800">
+                            <strong>Why is this locked?</strong><br />
+                            Detailed leak content is sensitive. We require verified access to generate the official report.
                         </div>
                     </div>
 

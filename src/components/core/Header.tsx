@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { PaywallModal } from '../modals/PaywallModal';
 
 import type { Redaction } from '../../types';
+import type { ScanResult } from '../../lib/auditor/types';
 
 interface HeaderProps {
     onExport?: () => void;
@@ -11,9 +12,10 @@ interface HeaderProps {
     hasFile?: boolean;
     file?: File | null;
     redactions?: Redaction[];
+    scanResult?: ScanResult | null;
 }
 
-export function Header({ onExport, isPaid, hasFile, file, redactions }: HeaderProps) {
+export function Header({ onExport, isPaid, hasFile, file, redactions, scanResult }: HeaderProps) {
     const [showPaywall, setShowPaywall] = useState(false);
 
     // Check if we are on the auditor subdomain
@@ -72,20 +74,22 @@ export function Header({ onExport, isPaid, hasFile, file, redactions }: HeaderPr
                                     to="/auditor"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-indigo-50"
+                                    className="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-indigo-50"
                                 >
                                     <ShieldCheck className="w-4 h-4" />
-                                    Audit Your PDF
+                                    <span className="hidden sm:inline">Audit Your PDF</span>
+                                    <span className="sm:hidden">Audit</span>
                                 </Link>
                             ) : (
                                 <a
                                     href={AUDITOR_URL}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-indigo-50"
+                                    className="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-indigo-50"
                                 >
                                     <ShieldCheck className="w-4 h-4" />
-                                    Audit Your PDF
+                                    <span className="hidden sm:inline">Audit Your PDF</span>
+                                    <span className="sm:hidden">Audit</span>
                                 </a>
                             )
                         ) : (
@@ -146,6 +150,7 @@ export function Header({ onExport, isPaid, hasFile, file, redactions }: HeaderPr
                 onClose={() => setShowPaywall(false)}
                 file={file || null}
                 redactions={redactions || []}
+                scanResult={scanResult}
             />
         </>
     );

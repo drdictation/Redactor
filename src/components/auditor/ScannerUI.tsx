@@ -309,6 +309,27 @@ export const ScannerUI: React.FC = () => {
                                         </div>
                                     </div>
                                 )}
+
+                                {/* Inline CTA — appears for ALL result types when unpaid */}
+                                {!isPaid && (
+                                    <button
+                                        onClick={() => {
+                                            trackPaywallCTAClick();
+                                            setIsPaywallOpen(true);
+                                        }}
+                                        className={`mt-4 inline-flex items-center gap-2 font-bold py-2.5 px-5 rounded-lg transition-all transform hover:-translate-y-0.5 text-sm shadow-md ${
+                                            hasCriticalLeaks
+                                                ? 'bg-red-600 text-white hover:bg-red-700 shadow-red-600/20'
+                                                : hasWarnings
+                                                    ? 'bg-orange-600 text-white hover:bg-orange-700 shadow-orange-600/20'
+                                                    : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-600/20'
+                                        }`}
+                                    >
+                                        {hasCriticalLeaks ? 'Get Full Report ($29)' :
+                                            hasWarnings ? 'Resolve Metadata Leaks ($29)' :
+                                                'Get Certified Proof ($29)'}
+                                    </button>
+                                )}
                             </div>
                             {hasCriticalLeaks ? (
                                 <ShieldAlert className="w-12 h-12 text-red-500" />
@@ -502,6 +523,42 @@ export const ScannerUI: React.FC = () => {
                                 </>
                             )}
                         </a>
+                    </div>
+                </div>
+            )}
+
+            {/* Sticky Bottom CTA Bar — always visible while scrolling results */}
+            {result && !isPaid && (
+                <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-t border-slate-200 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] p-3 animate-in slide-in-from-bottom duration-300">
+                    <div className="container mx-auto max-w-2xl flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-2 text-sm">
+                            <ShieldAlert className={`w-4 h-4 ${hasCriticalLeaks ? 'text-red-500' : hasWarnings ? 'text-orange-500' : 'text-indigo-500'}`} />
+                            <span className="text-slate-700 font-medium hidden sm:inline">
+                                {hasCriticalLeaks
+                                    ? `${ghostTextLeaks.length} critical leak${ghostTextLeaks.length !== 1 ? 's' : ''} found`
+                                    : hasWarnings
+                                        ? `${result.namesFound?.length ?? 0} metadata fingerprint${(result.namesFound?.length ?? 0) !== 1 ? 's' : ''} found`
+                                        : 'Audit complete'
+                                }
+                            </span>
+                        </div>
+                        <button
+                            onClick={() => {
+                                trackPaywallCTAClick();
+                                setIsPaywallOpen(true);
+                            }}
+                            className={`font-bold py-2 px-5 rounded-lg text-sm transition-all whitespace-nowrap ${
+                                hasCriticalLeaks
+                                    ? 'bg-red-600 text-white hover:bg-red-700'
+                                    : hasWarnings
+                                        ? 'bg-orange-600 text-white hover:bg-orange-700'
+                                        : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                            }`}
+                        >
+                            {hasCriticalLeaks ? 'Get Full Report — $29' :
+                                hasWarnings ? 'Resolve Leaks — $29' :
+                                    'Get Certified — $29'}
+                        </button>
                     </div>
                 </div>
             )}

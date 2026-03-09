@@ -283,11 +283,18 @@ export const UnredactScanner: React.FC = () => {
                                 </span>
                             </div>
                             <div className="p-5 space-y-3 font-mono text-sm">
-                                {result.leaks?.slice(0, isPaid ? 10 : 3).map((leak, idx) => (
+                                {result.leaks?.slice(0, isPaid ? 10 : 3).map((leak, idx) => {
+                                    // Mask leak descriptions for unpaid users to prevent giving away paid content
+                                    const maskedDescription = (() => {
+                                        if (isPaid) return leak.description;
+                                        // Mask any quoted text in the description (e.g. 'Ghost Text detected: "John Smith"')
+                                        return leak.description.replace(/"([^"]{3})[^"]*"/g, '"$1•••••"');
+                                    })();
+                                    return (
                                     <div key={idx} className="flex items-start gap-3 text-slate-400">
                                         <span className="text-red-500">✗</span>
                                         <div>
-                                            <span className="text-slate-300">{leak.description}</span>
+                                            <span className="text-slate-300">{maskedDescription}</span>
                                             {leak.pageNumber && (
                                                 <span className="text-slate-500"> (Page {leak.pageNumber})</span>
                                             )}
@@ -299,7 +306,8 @@ export const UnredactScanner: React.FC = () => {
                                             )}
                                         </div>
                                     </div>
-                                ))}
+                                    );
+                                })}
                                 {result.namesFound?.slice(0, isPaid ? 5 : 2).map((name, idx) => (
                                     <div key={`name-${idx}`} className="flex items-start gap-3 text-slate-400">
                                         <span className="text-amber-500">⚠</span>

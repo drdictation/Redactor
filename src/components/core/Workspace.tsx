@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import * as pdfjsLib from 'pdfjs-dist';
 import { loadPDF } from '../../lib/pdf-engine';
@@ -9,10 +9,14 @@ import type { Redaction } from '../../types';
 import { PDFUploader } from './PDFUploader';
 import { PageCanvas } from '../canvas/PageCanvas';
 import { Header } from './Header';
-import { Loader2, MousePointerClick, X, ShieldCheck, Lock, Download } from 'lucide-react';
+import { Loader2, MousePointerClick, X, ShieldCheck, Lock, Download, ShieldAlert } from 'lucide-react';
 import { loadAppState, clearAppState } from '../../lib/storage';
 import { Footer } from './Footer';
 import { TrustMarquee } from './TrustMarquee';
+import { scanPDF } from '../../lib/auditor/scanner';
+import type { ScanResult } from '../../lib/auditor/types';
+
+const REDACTOR_SESSION_KEY = 'redactor_session_paid';
 
 import {
     trackLandingPageView,
@@ -32,9 +36,15 @@ export function Workspace() {
     const [redactions, setRedactions] = useState<Redaction[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [exporting, setExporting] = useState(false);
-    const [isPaid, setIsPaid] = useState(false);
+    const [isPaid, setIsPaid] = useState(() => {
+        return sessionStorage.getItem(REDACTOR_SESSION_KEY) === 'true';
+    });
     const [showResetConfirm, setShowResetConfirm] = useState(false);
     const [showInstruction, setShowInstruction] = useState(true);
+    const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+    const [isScanning, setIsScanning] = useState(false);
+    const [showScanBanner, setShowScanBanner] = useState(true);
+    const scanGenerationRef = useRef(0); // Prevents stale async scans from overwriting current state
 
     useEffect(() => {
         const init = async () => {
@@ -50,6 +60,7 @@ export function Workspace() {
                     if (res.ok && data.verified) {
                         console.log('[Workspace] Payment verified by server.');
                         setIsPaid(true);
+                        sessionStorage.setItem(REDACTOR_SESSION_KEY, 'true');
 
                         // Fire purchase conversion (GA4 + Google Ads, deduplicated)
                         trackPurchaseCompleted(sessionId, 5.0);
@@ -100,6 +111,8 @@ export function Workspace() {
 
     const handleFileSelect = async (selectedFile: File) => {
         setIsProcessing(true);
+        setScanResult(null); // Clear stale scan from previous file
+        scanGenerationRef.current += 1; // Invalidate any in-flight scans
 
         // Track upload started
         trackUploadStarted(selectedFile.size, selectedFile.type);
@@ -120,12 +133,45 @@ export function Workspace() {
 
             runAutoSuggest(loadedPages);
 
+            // Fire background scan (truly async, non-blocking)
+            // Use sessionStorage instead of isPaid state to avoid React setState race
+            // (sessionStorage is set synchronously before handleFileSelect is called on paid restore)
+            const alreadyPaid = sessionStorage.getItem(REDACTOR_SESSION_KEY) === 'true';
+            if (!alreadyPaid) {
+                runBackgroundScan(selectedFile);
+            }
+
         } catch (err) {
             console.error(err);
             alert('Failed to load PDF.');
             setFile(null);
         } finally {
             setIsProcessing(false);
+        }
+    };
+
+    // Background scan — runs independently, never blocks the UI
+    // Captures generation at call time to discard stale results
+    const runBackgroundScan = async (selectedFile: File) => {
+        const generation = scanGenerationRef.current;
+        setIsScanning(true);
+        try {
+            const pdfProxy = await loadPDF(selectedFile);
+            const result = await scanPDF(pdfProxy);
+            // Only commit if this is still the current scan (user hasn't uploaded another file or reset)
+            if (scanGenerationRef.current === generation) {
+                setScanResult(result);
+                setShowScanBanner(true);
+            } else {
+                console.log('[Workspace] Discarding stale scan result (generation mismatch)');
+            }
+        } catch (scanErr) {
+            console.error('[Workspace] Background scan failed:', scanErr);
+        } finally {
+            // Only clear scanning state if this is still the current generation
+            if (scanGenerationRef.current === generation) {
+                setIsScanning(false);
+            }
         }
     };
 
@@ -299,7 +345,61 @@ export function Workspace() {
                 onExport={handleExport}
                 file={file}
                 redactions={redactions}
+                scanResult={scanResult}
             />
+
+            {/* Threat Alert Banner — appears after async scan completes */}
+            {file && showScanBanner && (isScanning || scanResult) && (
+                    <div className={`border-b px-4 py-3 ${
+                    isScanning
+                        ? 'bg-slate-50 border-slate-200'
+                        : (scanResult?.leaks?.length ?? 0) > 0 || (scanResult?.namesFound?.length ?? 0) > 0
+                            ? 'bg-red-50 border-red-200'
+                            : 'bg-green-50 border-green-200'
+                }`}>
+                    <div className="container mx-auto max-w-4xl flex items-center justify-between gap-4">
+                        {isScanning ? (
+                            <div className="flex items-center gap-2 text-sm text-slate-600">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span>Scanning for hidden data leaks...</span>
+                            </div>
+                        ) : scanResult && ((scanResult.leaks?.length ?? 0) > 0 || (scanResult.namesFound?.length ?? 0) > 0) ? (
+                            <div className="flex items-center gap-2 text-sm">
+                                <ShieldAlert className="w-4 h-4 text-red-600 shrink-0" />
+                                <span className="text-red-800">
+                                    <strong>Warning:</strong> This document has
+                                    {scanResult.leaks?.filter(l => l.severity === 'CRITICAL').length
+                                        ? ` ${scanResult.leaks.filter(l => l.severity === 'CRITICAL').length} hidden text leak${scanResult.leaks.filter(l => l.severity === 'CRITICAL').length !== 1 ? 's' : ''}`
+                                        : ''}
+                                    {(scanResult.namesFound?.length ?? 0) > 0
+                                        ? `${scanResult.leaks?.some(l => l.severity === 'CRITICAL') ? ' and' : ''} ${scanResult.namesFound?.length} identity fingerprint${(scanResult.namesFound?.length ?? 0) !== 1 ? 's' : ''}`
+                                        : ''}
+                                    {scanResult.leaks?.filter(l => l.severity !== 'CRITICAL').length && !scanResult.leaks?.some(l => l.severity === 'CRITICAL') && !(scanResult.namesFound?.length)
+                                        ? ` ${scanResult.leaks.filter(l => l.severity !== 'CRITICAL').length} metadata field${scanResult.leaks.filter(l => l.severity !== 'CRITICAL').length !== 1 ? 's' : ''} exposing document origin`
+                                        : ''}
+                                    . Redaction boxes alone won’t fix this.
+                                </span>
+                                <a
+                                    href={import.meta.env.DEV ? '/auditor' : 'https://audit.reactpdf.app'}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="shrink-0 text-xs font-bold bg-red-600 text-white px-3 py-1.5 rounded-lg hover:bg-red-700 transition-colors"
+                                >
+                                    Full Audit ($29)
+                                </a>
+                            </div>
+                        ) : scanResult ? (
+                            <div className="flex items-center gap-2 text-sm text-green-700">
+                                <ShieldCheck className="w-4 h-4" />
+                                <span>No hidden text layers detected in the source document.</span>
+                            </div>
+                        ) : null}
+                        <button onClick={() => setShowScanBanner(false)} className="text-slate-400 hover:text-slate-600 shrink-0">
+                            <X className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <div className="sticky top-16 z-40 bg-white/90 backdrop-blur border-b px-4 py-2 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-4 text-sm text-gray-600">
@@ -315,10 +415,10 @@ export function Workspace() {
                         href={import.meta.env.DEV ? '/auditor' : 'https://audit.reactpdf.app'}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hidden sm:flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+                        className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors text-sm font-medium border border-indigo-100"
                     >
-                        <ShieldCheck className="w-3 h-3" />
-                        Verify
+                        <ShieldCheck className="w-4 h-4" />
+                        Verify Redaction
                     </a>
 
                     <div className="h-4 w-px bg-slate-300 hidden sm:block"></div>
@@ -346,6 +446,10 @@ export function Workspace() {
                                             setRedactions([]);
                                             setFile(null);
                                             setPages([]);
+                                            setScanResult(null);
+                                            setIsScanning(false);
+                                            setShowScanBanner(true);
+                                            scanGenerationRef.current += 1; // Invalidate any in-flight scans
                                             setShowResetConfirm(false);
                                         }}
                                         className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg font-medium"

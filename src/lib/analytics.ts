@@ -8,6 +8,9 @@
 // Track fired events to prevent duplicates
 const firedEvents = new Set<string>();
 
+// Track event counts for repeat-action visibility
+const eventCounts = new Map<string, number>();
+
 // Debug mode - enable in dev or via URL param
 const DEBUG = import.meta.env.DEV ||
     (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('debug_analytics'));
@@ -43,10 +46,17 @@ export function trackOnce(eventName: string, params?: EventParams): boolean {
         if (DEBUG) {
             console.log(`[Analytics] trackOnce SKIPPED (duplicate): ${eventName}`);
         }
+
+        // Still track repeat actions as a separate counted event so GA4 sees session depth
+        const count = (eventCounts.get(eventName) || 1) + 1;
+        eventCounts.set(eventName, count);
+        track(`${eventName}_repeat`, { ...params, repeat_count: count });
+
         return false;
     }
 
     firedEvents.add(dedupeKey);
+    eventCounts.set(eventName, 1);
 
     if (DEBUG) {
         console.log(`[Analytics] trackOnce: ${eventName}`, params || {});
@@ -81,6 +91,7 @@ export function trackConversion(
  */
 export function resetTracking(): void {
     firedEvents.clear();
+    eventCounts.clear();
     if (DEBUG) {
         console.log('[Analytics] Tracking state reset');
     }
@@ -169,13 +180,14 @@ export function trackScanCompleted(
         product: 'auditor'
     });
 
-    // 2. Fire Google Ads Conversion for "Audit Scanned" (Lead/Engagement)
-    // NOTE: Replace 'PLACEHOLDER_LABEL' with the actual label from Google Ads
-    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
-        window.gtag('event', 'conversion', {
-            send_to: 'AW-17755885311/PLACEHOLDER_LABEL',
-        });
-    }
+    // 2. Google Ads Conversion for "Audit Scanned" (Lead/Engagement)
+    // TODO: Create a conversion action in Google Ads for scan_completed,
+    // then replace PLACEHOLDER_LABEL with the real label and uncomment:
+    // if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+    //     window.gtag('event', 'conversion', {
+    //         send_to: 'AW-17755885311/YOUR_REAL_LABEL_HERE',
+    //     });
+    // }
 }
 
 /**

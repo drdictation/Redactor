@@ -53,6 +53,14 @@ export function PDFToolPage() {
         .map((toolId) => getPdfToolById(toolId))
         .filter((value): value is NonNullable<typeof value> => Boolean(value));
 
+    const getNextStepLabel = (target: string) => {
+        if (target === '/auditor') return 'Open PDF Auditor';
+        if (target === '/') return 'Open Redaction Tool';
+
+        const targetTool = getPdfToolByPath(target);
+        return targetTool ?                                                 `Open ${targetTool.name}` : 'Open Related Tool';
+    };
+
     const processFile = async (file: File) => {
         setFileName(file.name);
         setError('');
@@ -211,7 +219,7 @@ export function PDFToolPage() {
                                         to={target}
                                         className="flex items-center justify-between rounded-2xl border border-slate-700 bg-slate-800 px-4 py-3 text-sm font-medium text-white hover:border-indigo-400 hover:bg-slate-700"
                                     >
-                                        <span>{target === '/auditor' ? 'Open the full PDF Auditor' : 'Open the redaction workflow'}</span>
+                                        <span>{getNextStepLabel(target)}</span>
                                         <span>→</span>
                                     </Link>
                                 ))}

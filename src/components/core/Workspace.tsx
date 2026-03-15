@@ -12,6 +12,7 @@ import { Header } from './Header';
 import { Loader2, MousePointerClick, X, ShieldCheck, Lock, Download, ShieldAlert } from 'lucide-react';
 import { loadAppState, clearAppState } from '../../lib/storage';
 import { Footer } from './Footer';
+import { PDFToolPromoSection } from '../tools/PDFToolPromoSection';
 import { TrustMarquee } from './TrustMarquee';
 import { scanPDF } from '../../lib/auditor/scanner';
 import type { ScanResult } from '../../lib/auditor/types';
@@ -276,6 +277,13 @@ export function Workspace() {
                     <div className="w-full">
                         <TrustMarquee />
                     </div>
+
+                    <PDFToolPromoSection
+                        eyebrow="More PDF utilities"
+                        title="More ways professionals clean PDFs before sharing"
+                        description="These utility pages target high-intent PDF cleanup searches and funnel users back into your paid redaction and audit workflows. They also give the homepage stronger in-content internal links than footer navigation alone."
+                        toolIds={['metadata-stripper', 'comments-remover', 'hidden-text-remover', 'pii-scanner', 'form-flattener']}
+                    />
 
                     <div className="grid sm:grid-cols-3 gap-6 max-w-5xl w-full px-4 text-center">
                         {routeConfig.items.map((bullet, idx) => (

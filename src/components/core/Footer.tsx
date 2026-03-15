@@ -7,6 +7,9 @@ export function Footer() {
                 <Link to="/tools" className="hover:text-gray-900 transition-colors">
                     All PDF Tools
                 </Link>
+                <Link to="/guides/is-my-pdf-safe-to-send" className="hover:text-gray-900 transition-colors">
+                    PDF Sharing Guide
+                </Link>
                 <Link to="/tools/remove-pdf-metadata" className="hover:text-gray-900 transition-colors">
                     Remove PDF Metadata
                 </Link>

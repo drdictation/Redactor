@@ -233,3 +233,28 @@ export function trackAuditPurchaseClick(callback?: () => void): void {
     }
 }
 
+
+
+export function trackToolPageView(toolPath: string, mode: string): void {
+    track('view_tool_page', { tool_path: toolPath, tool_mode: mode });
+}
+
+export function trackToolProcessed(toolPath: string, mode: string, metrics?: EventParams): void {
+    track('tool_processed', { tool_path: toolPath, tool_mode: mode, ...metrics });
+}
+
+export function trackToolNextStepClick(toolPath: string, targetPath: string): void {
+    track('click_tool_next_step', { tool_path: toolPath, target_path: targetPath });
+}
+
+export function trackToolsHubView(): void {
+    trackOnce('view_tools_hub');
+}
+
+export function trackGuidePageView(resourcePath: string, kind: string): void {
+    track('view_pdf_guide', { resource_path: resourcePath, resource_kind: kind });
+}
+
+export function trackGuidePrimaryClick(resourcePath: string, targetPath: string): void {
+    track('click_pdf_guide_primary', { resource_path: resourcePath, target_path: targetPath });
+}

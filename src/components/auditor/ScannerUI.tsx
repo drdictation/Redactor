@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import * as pdfjsLib from 'pdfjs-dist';
 import { loadPDF } from '../../lib/pdf-engine';
 import { scanPDF } from '../../lib/auditor/scanner';
@@ -177,6 +178,18 @@ export const ScannerUI: React.FC = () => {
     const isClean = !hasCriticalLeaks && !hasWarnings;
 
     const leakPage = ghostTextLeaks.length > 0 ? ghostTextLeaks[0].pageNumber : null;
+    const recommendedToolLinks = (() => {
+        const links: Array<{ path: string; label: string }> = [];
+        const hasMetadataLeaks = result?.leaks?.some((leak) => leak.id.startsWith('meta-')) ?? false;
+        const hasIdentitySignals = (result?.namesFound?.length ?? 0) > 0 || (result?.datesFound?.length ?? 0) > 0;
+
+        if (hasCriticalLeaks) links.push({ path: '/tools/remove-hidden-text', label: 'Flatten hidden text layers' });
+        if (hasMetadataLeaks) links.push({ path: '/tools/remove-pdf-metadata', label: 'Clean PDF metadata' });
+        if (result && result.redactionCount > 0) links.push({ path: '/', label: 'Open Redaction Tool' });
+        if (hasIdentitySignals) links.push({ path: '/tools/scan-pdf-for-pii', label: 'Review sensitive data findings' });
+
+        return links.filter((link, index, arr) => arr.findIndex((candidate) => candidate.path === link.path) === index).slice(0, 3);
+    })();
     const leaksOnPage = leakPage && ghostTextLeaks.length > 0
         ? ghostTextLeaks.filter(l => l.pageNumber === leakPage)
         : [];
@@ -340,6 +353,21 @@ export const ScannerUI: React.FC = () => {
                             )}
                         </div>
                     </div>
+
+                    {recommendedToolLinks.length > 0 && (
+                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div className="p-4 border-b border-slate-100 bg-slate-50">
+                                <h3 className="font-semibold text-slate-800">Recommended tools for these findings</h3>
+                            </div>
+                            <div className="p-4 grid gap-3 md:grid-cols-3">
+                                {recommendedToolLinks.map((link) => (
+                                    <Link key={link.path} to={link.path} className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700">
+                                        {link.label}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Metadata "Scare" Factor */}
                     {(result.namesFound?.length ?? 0) > 0 && (

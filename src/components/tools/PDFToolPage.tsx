@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { CheckCircle2, FileSearch, FileUp, Lock, ShieldAlert, ShieldCheck, Sparkles } from 'lucide-react';
 
@@ -16,7 +16,8 @@ import {
     scanPdfBytes,
     scanPdfForPii,
 } from '../../lib/pdf-tools/actions';
-import { getPdfToolById, getPdfToolByPath } from '../../lib/pdf-tools/catalog';
+import { getPdfToolById, getPdfToolByPath, getPdfToolsByMode, PDF_TOOL_MODE_LABELS } from '../../lib/pdf-tools/catalog';
+import { trackToolPageView, trackToolProcessed, trackToolNextStepClick } from '../../lib/analytics';
 
 interface ResultMetric {
     label: string;
@@ -45,6 +46,12 @@ export function PDFToolPage() {
     const [error, setError] = useState('');
     const [result, setResult] = useState<ToolResult | null>(null);
 
+    useEffect(() => {
+        if (tool) {
+            trackToolPageView(tool.path, tool.mode);
+        }
+    }, [tool]);
+
     if (!tool) {
         return <Navigate to="/" replace />;
     }
@@ -52,13 +59,16 @@ export function PDFToolPage() {
     const relatedTools = tool.relatedToolIds
         .map((toolId) => getPdfToolById(toolId))
         .filter((value): value is NonNullable<typeof value> => Boolean(value));
+    const sameModeTools = getPdfToolsByMode(tool.mode)
+        .filter((candidate) => candidate.path !== tool.path)
+        .slice(0, 6);
 
     const getNextStepLabel = (target: string) => {
         if (target === '/auditor') return 'Open PDF Auditor';
         if (target === '/') return 'Open Redaction Tool';
 
         const targetTool = getPdfToolByPath(target);
-        return targetTool ?                                                 `Open ${targetTool.name}` : 'Open Related Tool';
+        return targetTool ? `Open ${targetTool.name}` : 'Open Related Tool';
     };
 
     const processFile = async (file: File) => {
@@ -74,6 +84,7 @@ export function PDFToolPage() {
                 const outputBytes = await removePdfMetadataFromFile(file);
                 const after = await countSensitiveMetadataFieldsBytes(outputBytes);
 
+                trackToolProcessed(tool.path, tool.mode, { before_count: before, after_count: after });
                 setResult({
                     outputBytes,
                     outputName: formatOutputFileName(tool.downloadPrefix, file.name),
@@ -92,6 +103,7 @@ export function PDFToolPage() {
                 const outputBytes = await removePdfCommentsFromFile(file);
                 const after = await countPdfAnnotationsBytes(outputBytes);
 
+                trackToolProcessed(tool.path, tool.mode, { before_count: before, after_count: after });
                 setResult({
                     outputBytes,
                     outputName: formatOutputFileName(tool.downloadPrefix, file.name),
@@ -109,6 +121,7 @@ export function PDFToolPage() {
                 const audit = await scanPdfBytes(outputBytes);
                 const criticalLeaks = audit.leaks.filter((leak) => leak.severity === 'CRITICAL').length;
 
+                trackToolProcessed(tool.path, tool.mode, { critical_leaks: criticalLeaks, total_findings: audit.leaks.length });
                 setResult({
                     outputBytes,
                     outputName: formatOutputFileName(tool.downloadPrefix, file.name),
@@ -127,6 +140,7 @@ export function PDFToolPage() {
                 const outputBytes = await flattenPdfFormFieldsFromFile(file);
                 const after = await countPdfFormFieldsBytes(outputBytes);
 
+                trackToolProcessed(tool.path, tool.mode, { before_count: before, after_count: after });
                 setResult({
                     outputBytes,
                     outputName: formatOutputFileName(tool.downloadPrefix, file.name),
@@ -142,6 +156,12 @@ export function PDFToolPage() {
             const scanResult = await scanPdfForPii(file);
             const criticalLeaks = scanResult.leaks.filter((leak) => leak.severity === 'CRITICAL').length;
 
+            trackToolProcessed(tool.path, tool.mode, {
+                names_found: scanResult.namesFound.length,
+                dates_found: scanResult.datesFound.length,
+                findings_count: scanResult.leaks.length,
+                critical_leaks: criticalLeaks,
+            });
             setResult({
                 scanResult,
                 metrics: [
@@ -210,13 +230,16 @@ export function PDFToolPage() {
                                 <Lock className="h-4 w-4" />
                                 Recommended next steps
                             </div>
-                            <h2 className="mt-4 text-2xl font-bold">{tool.funnelTitle}</h2>
-                            <p className="mt-4 text-sm leading-6 text-slate-300">{tool.funnelBody}</p>
+                            <h2 className="mt-4 text-2xl font-bold">Continue with the right follow-up tool</h2>
+                            <p className="mt-4 text-sm leading-6 text-slate-300">
+                                Open a related tool, continue into the auditor, or return to the redaction workspace.
+                            </p>
                             <div className="mt-6 space-y-3">
                                 {tool.funnelTargets.map((target) => (
                                     <Link
                                         key={target}
                                         to={target}
+                                        onClick={() => trackToolNextStepClick(tool.path, target)}
                                         className="flex items-center justify-between rounded-2xl border border-slate-700 bg-slate-800 px-4 py-3 text-sm font-medium text-white hover:border-indigo-400 hover:bg-slate-700"
                                     >
                                         <span>{getNextStepLabel(target)}</span>
@@ -324,6 +347,24 @@ export function PDFToolPage() {
                             )}
                         </div>
                     </section>
+
+                    {sameModeTools.length > 0 && (
+                        <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+                            <h2 className="text-xl font-bold text-slate-900">More in {PDF_TOOL_MODE_LABELS[tool.mode]}</h2>
+                            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                                {sameModeTools.map((sameModeTool) => (
+                                    <Link
+                                        key={sameModeTool.id}
+                                        to={sameModeTool.path}
+                                        className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 transition hover:border-indigo-300 hover:bg-indigo-50"
+                                    >
+                                        <div className="text-sm font-semibold text-slate-900">{sameModeTool.name}</div>
+                                        <div className="mt-1 text-sm text-slate-600">{sameModeTool.headline}</div>
+                                    </Link>
+                                ))}
+                            </div>
+                        </section>
+                    )}
 
                     <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
                         <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">

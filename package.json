@@ -9,7 +9,10 @@
     "lint": "eslint .",
     "test": "vitest run",
     "check-branding": "./scripts/check-branding.sh",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate-seo-assets": "node scripts/generate-seo-assets.mjs",
+    "check-front-copy": "node scripts/check-front-copy.mjs",
+    "prebuild": "npm run generate-seo-assets && npm run check-front-copy"
   },
   "dependencies": {
     "@stripe/stripe-js": "^8.6.0",

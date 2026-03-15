@@ -517,7 +517,7 @@ const commentsTools = [
         name: 'Remove Apple Preview Comments from PDF',
         targetKeyword: 'remove apple preview comments from pdf',
         headline: 'Delete comments and markup left behind by Apple Preview.',
-        description: 'Useful when a Mac Preview workflow leaves notes, highlights, or text boxes in the PDF.',
+        description: 'Useful when a Mac Preview editing session leaves notes, highlights, or text boxes in the PDF.',
         securityHero: 'Clean Preview comments locally before sending the PDF.',
         subhead: 'Remove common comment and markup layers that often show up in PDFs edited with Apple Preview.',
         primarySearchIntent: 'Remove Apple Preview comments from PDF',
@@ -546,7 +546,7 @@ const commentsTools = [
         metaTitle: 'Remove Adobe Comments from PDF | Clean Review Copy',
         metaDescription: 'Remove Adobe comments, notes, and review markup from a PDF in your browser before sharing it.',
         focusTitle: 'Adobe Comment Cleanup',
-        focusText: 'Targets the annotation layers commonly used in Adobe review workflows.',
+        focusText: 'Targets the annotation layers commonly used in Adobe review sessions.',
         focusBullet: 'Useful for cleaning comments and markup from Acrobat-reviewed PDFs.',
         howThisWorks: 'Upload the PDF, remove Adobe-style review layers, and download the cleaned copy.',
         ctaText: 'Remove Adobe Comments',
@@ -950,4 +950,16 @@ export function getPdfToolByPath(pathname: string): PdfToolDefinition | undefine
 
 export function getPdfToolById(id: PdfToolId): PdfToolDefinition | undefined {
     return PDF_TOOLS.find((tool) => tool.id === id);
+}
+
+export const PDF_TOOL_MODE_LABELS: Record<PdfToolMode, string> = {
+    metadata_strip: 'Metadata Cleanup',
+    comments_remove: 'Comments & Markup Removal',
+    hidden_text_remove: 'Flattening & Hidden Text Removal',
+    pii_scan: 'PII & Leak Scanning',
+    form_flatten: 'Form Finalization',
+};
+
+export function getPdfToolsByMode(mode: PdfToolMode): PdfToolDefinition[] {
+    return PDF_TOOLS.filter((tool) => tool.mode === mode);
 }

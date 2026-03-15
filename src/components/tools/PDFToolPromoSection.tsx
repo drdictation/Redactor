@@ -42,7 +42,7 @@ export function PDFToolPromoSection({
                     to="/auditor"
                     className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-700 hover:text-indigo-900"
                 >
-                    Go to the paid PDF Auditor
+                    Open PDF Auditor
                     <ArrowRight className="h-4 w-4" />
                 </Link>
             </div>

@@ -47,7 +47,7 @@ export const PDF_TOOLS: PdfToolDefinition[] = [
         bullets: [
             'Removes Title, Author, Subject, Keywords, Creator, and Producer fields.',
             'Preserves visible text and page layout.',
-            'Makes metadata cleanup a strong first step before a deeper leak audit.',
+            'Helps remove common authoring traces before you share the document.',
         ],
         limitations: [
             'Metadata stripping does not prove covered text is gone.',
@@ -56,7 +56,7 @@ export const PDF_TOOLS: PdfToolDefinition[] = [
         resultHeading: 'Metadata cleanup summary',
         downloadPrefix: 'metadata-stripped',
         funnelTitle: 'Clean metadata is not the same as a safe PDF.',
-        funnelBody: 'Use the full PDF Auditor to verify there is no ghost text, recoverable redaction layer, or annotation content still hiding in the file.',
+        funnelBody: 'If you need a deeper verification pass, open the PDF Auditor to check for ghost text, recoverable redaction layers, or leftover annotation content.',
         funnelTargets: ['/auditor', '/'],
         relatedToolIds: ['comments-remover', 'hidden-text-remover', 'form-flattener'],
         routeConfig: {
@@ -68,13 +68,13 @@ export const PDF_TOOLS: PdfToolDefinition[] = [
             items: [
                 { title: 'Metadata Cleanup', text: 'Remove common authoring fields that reveal software, people, and workflow history.' },
                 { title: 'Preserve Layout', text: 'Keep the visible document intact without forcing a full raster export.' },
-                { title: 'Best First Step', text: 'Use it as fast pre-cleaning before the full audit confirms nothing else leaks.' },
+                { title: 'Helpful Cleanup', text: 'Use it to quickly clean document properties before sharing.' },
             ],
             howThisWorks: 'Upload a PDF, strip common metadata fields, then download a cleaned copy.',
             trustSignals: 'Local Processing • No Uploads • Fast Metadata Cleanup',
             ctaText: 'Strip Metadata',
             metaTitle: 'PDF Metadata Stripper | Remove Hidden PDF Data Free',
-            metaDescription: 'Remove author, creator, producer, and other hidden PDF metadata for free in your browser. Then verify the file with a full redaction audit.',
+            metaDescription: 'Remove author, creator, producer, and other hidden PDF metadata for free in your browser. Then review the file with the PDF Auditor if you want a deeper check.',
         },
     },
     {
@@ -97,8 +97,8 @@ export const PDF_TOOLS: PdfToolDefinition[] = [
         ],
         resultHeading: 'Markup removal summary',
         downloadPrefix: 'comments-removed',
-        funnelTitle: 'Comments removed. Now test the file for real leaks.',
-        funnelBody: 'The full Auditor checks whether redactions still expose ghost text, metadata, names, or dates after comment cleanup.',
+        funnelTitle: 'Comments removed. Review the cleaned file.',
+        funnelBody: 'If you want a deeper review, open the PDF Auditor to check for ghost text, metadata, names, or dates after comment cleanup.',
         funnelTargets: ['/auditor', '/unredact'],
         relatedToolIds: ['metadata-stripper', 'hidden-text-remover', 'pii-scanner'],
         routeConfig: {
@@ -110,13 +110,13 @@ export const PDF_TOOLS: PdfToolDefinition[] = [
             items: [
                 { title: 'Cross-App Approach', text: 'Targets the PDF annotation structures used underneath Acrobat, Preview, and similar editors.' },
                 { title: 'Verification Counts', text: 'Shows annotation counts before and after cleanup to build trust.' },
-                { title: 'Audit Follow-Up', text: 'Funnels users into the paid leak audit for final share-safe verification.' },
+                { title: 'Final Review', text: 'Use the PDF Auditor if you want a final verification pass before sharing.' },
             ],
             howThisWorks: 'Upload the PDF, remove page annotations, and download a cleaned version.',
             trustSignals: 'Local Only • Annotation Verification • Draft Cleanup',
             ctaText: 'Remove Comments',
             metaTitle: 'Remove Comments from PDF Free | PDF Markup Remover',
-            metaDescription: 'Remove comments, notes, highlights, and markup from a PDF for free in your browser. Verify the cleaned file with a deeper PDF audit.',
+            metaDescription: 'Remove comments, notes, highlights, and markup from a PDF for free in your browser. Review the cleaned file with the PDF Auditor if needed.',
         },
     },
     {
@@ -131,16 +131,16 @@ export const PDF_TOOLS: PdfToolDefinition[] = [
         bullets: [
             'Rasterizes each page so hidden text layers are no longer extractable.',
             'Strips metadata as part of the rebuild.',
-            'Acts as the direct free lead-in to your paid redaction QA workflow.',
+            'Creates an image-based copy that is easier to share safely.',
         ],
         limitations: [
             'Flattening removes searchability, selectable text, and live form fields.',
-            'For compliance-sensitive sharing, you still want the paid Auditor as final proof.',
+            'For compliance-sensitive sharing, you may still want a deeper verification step.',
         ],
         resultHeading: 'Flattened export summary',
         downloadPrefix: 'hidden-text-removed',
-        funnelTitle: 'Flattened is safer. Audited is defensible.',
-        funnelBody: 'Open the full Auditor to verify the flattened file no longer contains ghost text, exposed names, or metadata leaks.',
+        funnelTitle: 'Flattened files still deserve a final review.',
+        funnelBody: 'Open the PDF Auditor if you want to double-check the flattened file for ghost text, exposed names, or metadata leaks.',
         funnelTargets: ['/auditor', '/'],
         relatedToolIds: ['metadata-stripper', 'comments-remover', 'form-flattener'],
         routeConfig: {
@@ -152,13 +152,13 @@ export const PDF_TOOLS: PdfToolDefinition[] = [
             items: [
                 { title: 'Ghost Text Defense', text: 'Flattens pages so covered text is no longer copy-pasteable.' },
                 { title: 'No Cloud Upload', text: 'Processing stays local to the browser.' },
-                { title: 'Perfect Audit Hand-Off', text: 'The output naturally feeds the paid Auditor for final verification.' },
+                { title: 'Extra Verification', text: 'If you want extra confidence, review the output in the PDF Auditor.' },
             ],
             howThisWorks: 'Upload the PDF, flatten every page into a new image-based PDF, and download the cleaned copy.',
             trustSignals: 'Flattened Output • Local Processing • Audit-Ready',
             ctaText: 'Remove Hidden Text',
             metaTitle: 'Remove Hidden Text from PDF | Flatten PDF Free',
-            metaDescription: 'Remove hidden text from a PDF by flattening pages into an image-based copy in your browser. Then verify the result with a full PDF audit.',
+            metaDescription: 'Remove hidden text from a PDF by flattening pages into an image-based copy in your browser. Then review the result in the PDF Auditor if needed.',
         },
     },
     {
@@ -172,16 +172,16 @@ export const PDF_TOOLS: PdfToolDefinition[] = [
         description: 'Uses your existing scanner to surface likely PII exposure and hidden leak signals before a document is sent or published.',
         bullets: [
             'Surfaces names, dates, metadata traces, and ghost-text style redaction leaks.',
-            'Uses the same scanner family as the paid audit product.',
-            'Creates a clear upgrade path into the certified paid report.',
+            'Uses the same underlying scanner logic as the Auditor.',
+            'Gives you a quick way to review likely sensitive content and document risk.',
         ],
         limitations: [
             'This page is a quick triage layer, not a legal certification.',
-            'For downloadable reporting and full vulnerability review, the paid Auditor stays the main offer.',
+            'For downloadable reporting and a fuller vulnerability review, open the PDF Auditor.',
         ],
         resultHeading: 'PII scan findings',
-        funnelTitle: 'Turn this triage into a certified audit.',
-        funnelBody: 'If the scanner finds names, dates, metadata, or ghost text, continue into the full Auditor for deeper review and remediation proof.',
+        funnelTitle: 'Want a deeper document review?',
+        funnelBody: 'If the scanner finds names, dates, metadata, or ghost text, continue into the PDF Auditor for a deeper review.',
         funnelTargets: ['/auditor', '/'],
         relatedToolIds: ['metadata-stripper', 'comments-remover', 'hidden-text-remover'],
         routeConfig: {
@@ -193,13 +193,13 @@ export const PDF_TOOLS: PdfToolDefinition[] = [
             items: [
                 { title: 'PII Signals', text: 'Find dates, names, and document fingerprints in the text and metadata.' },
                 { title: 'Leak Discovery', text: 'Detect whether common redaction mistakes still expose hidden text.' },
-                { title: 'Upsell Alignment', text: 'This naturally feeds the paid audit when users need confidence or documentation.' },
+                { title: 'Deeper Review', text: 'Open the PDF Auditor when you want more confidence or documentation.' },
             ],
             howThisWorks: 'Upload your PDF, review counts and sample findings, then open the full Auditor for remediation-grade review.',
-            trustSignals: 'Client-Side Scan • No Upload • Audit Upgrade Path',
+            trustSignals: 'Client-Side Scan • No Upload • Detailed Review Available',
             ctaText: 'Scan for PII',
             metaTitle: 'Scan PDF for PII | Find Personal Data in PDF',
-            metaDescription: 'Scan a PDF for names, dates, metadata, and redaction leak signals in your browser. Upgrade to the full PDF Auditor for deeper review.',
+            metaDescription: 'Scan a PDF for names, dates, metadata, and redaction leak signals in your browser. Open the PDF Auditor for deeper review if needed.',
         },
     },
     {
@@ -214,16 +214,16 @@ export const PDF_TOOLS: PdfToolDefinition[] = [
         bullets: [
             'Flattens editable AcroForm fields into fixed page content.',
             'Useful for applications, intake forms, contracts, and signed packets.',
-            'Creates a strong handoff into the full audit for final outbound QA.',
+            'Works well before a final document review.',
         ],
         limitations: [
             'Flattening a form does not verify hidden metadata or recoverable redaction layers.',
-            'Digitally signed workflows may still require the paid Auditor or redactor review before sharing.',
+            'Digitally signed workflows may still require additional review before sharing.',
         ],
         resultHeading: 'Form flattening summary',
         downloadPrefix: 'form-flattened',
-        funnelTitle: 'Flattened forms still deserve a final safety check.',
-        funnelBody: 'Use the full Auditor to verify the flattened PDF no longer exposes metadata, hidden annotation text, or risky redaction artifacts.',
+        funnelTitle: 'Flattened forms are easier to share and review.',
+        funnelBody: 'Open the PDF Auditor if you want to check the flattened PDF for metadata, hidden annotation text, or risky redaction artifacts.',
         funnelTargets: ['/auditor', '/'],
         relatedToolIds: ['metadata-stripper', 'comments-remover', 'hidden-text-remover'],
         routeConfig: {
@@ -235,13 +235,13 @@ export const PDF_TOOLS: PdfToolDefinition[] = [
             items: [
                 { title: 'Lock Final Answers', text: 'Turn live fields into fixed page content so casual edits stop.' },
                 { title: 'Great for Shared Packets', text: 'Useful for HR, legal, finance, and intake workflows.' },
-                { title: 'Feeds Final Audit', text: 'The next step is a paid audit to verify nothing else remains exposed.' },
+                { title: 'Extra Review', text: 'If you need more confidence, review the file in the PDF Auditor.' },
             ],
             howThisWorks: 'Upload the PDF, flatten live form fields, and download a static version.',
             trustSignals: 'Static Output • Local Only • Workflow-Safe',
             ctaText: 'Flatten PDF Form',
             metaTitle: 'Flatten Fillable PDF | PDF Form Field Flattener',
-            metaDescription: 'Flatten a fillable PDF into a static copy in your browser. Then verify the final file with the full PDF Auditor.',
+            metaDescription: 'Flatten a fillable PDF into a static copy in your browser. Then review the final file in the PDF Auditor if needed.',
         },
     },
 ];

@@ -72,7 +72,7 @@ export function PDFToolPage() {
                     metrics: [
                         { label: 'Sensitive metadata fields found', value: String(before) },
                         { label: 'Sensitive metadata fields remaining', value: String(after) },
-                        { label: 'Recommended next step', value: 'Run the paid Auditor' },
+                        { label: 'Recommended next step', value: 'Open the PDF Auditor' },
                     ],
                 });
                 return;
@@ -90,7 +90,7 @@ export function PDFToolPage() {
                     metrics: [
                         { label: 'Page annotations found before cleanup', value: String(before) },
                         { label: 'Page annotations remaining after cleanup', value: String(after) },
-                        { label: 'Recommended next step', value: 'Verify with the paid Auditor' },
+                        { label: 'Recommended next step', value: 'Verify with the PDF Auditor' },
                     ],
                 });
                 return;
@@ -107,7 +107,7 @@ export function PDFToolPage() {
                     metrics: [
                         { label: 'Critical ghost-text leaks found after flattening', value: String(criticalLeaks) },
                         { label: 'Metadata / annotation leak findings after flattening', value: String(audit.leaks.length) },
-                        { label: 'Recommended next step', value: 'Download now, then open the paid Auditor if sharing externally' },
+                        { label: 'Recommended next step', value: 'Download now, then open the PDF Auditor if you want a deeper review' },
                     ],
                 });
                 return;
@@ -125,7 +125,7 @@ export function PDFToolPage() {
                     metrics: [
                         { label: 'Interactive form fields before flattening', value: String(before) },
                         { label: 'Interactive form fields remaining', value: String(after) },
-                        { label: 'Recommended next step', value: 'Run the paid Auditor before sending the final packet' },
+                        { label: 'Recommended next step', value: 'Open the PDF Auditor before sending the final packet' },
                     ],
                 });
                 return;
@@ -267,7 +267,7 @@ export function PDFToolPage() {
                             <h2 className="text-xl font-bold text-slate-900">{tool.resultHeading}</h2>
                             {!result ? (
                                 <p className="mt-4 text-sm leading-6 text-slate-500">
-                                    Process a file to see verification metrics, download output, and continue into the full review workflow if you need deeper verification.
+                                    Process a file to see verification metrics, download output, and continue into a deeper review if needed.
                                 </p>
                             ) : (
                                 <div className="mt-6 space-y-4">

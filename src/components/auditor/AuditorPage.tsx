@@ -17,7 +17,7 @@ export const AuditorPage: React.FC = () => {
                     <PDFToolPromoSection
                         eyebrow="Quick fixes before audit"
                         title="Need a fast cleanup before the final audit?"
-                        description="These in-browser utilities remove common PDF issues like metadata, comments, and editable form fields. They pass stronger internal-link equity from the auditor page while still routing users back into the full paid review when certainty matters."
+                        description="These in-browser utilities remove common PDF issues like metadata, comments, and editable form fields. They are useful quick fixes before a deeper audit when you need higher confidence."
                         toolIds={['metadata-stripper', 'comments-remover', 'hidden-text-remover', 'form-flattener']}
                     />
                     <SocialProof />

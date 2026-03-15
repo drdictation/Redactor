@@ -281,7 +281,7 @@ export function Workspace() {
                     <PDFToolPromoSection
                         eyebrow="More PDF utilities"
                         title="More ways professionals clean PDFs before sharing"
-                        description="These utility pages target high-intent PDF cleanup searches and funnel users back into your paid redaction and audit workflows. They also give the homepage stronger in-content internal links than footer navigation alone."
+                        description="Explore focused PDF cleanup tools for metadata, comments, hidden text, forms, and PII checks. They help users solve specific document problems before moving into deeper redaction or audit workflows when needed."
                         toolIds={['metadata-stripper', 'comments-remover', 'hidden-text-remover', 'pii-scanner', 'form-flattener']}
                     />
 
@@ -299,7 +299,7 @@ export function Workspace() {
                         ))}
                     </div>
 
-                    {/* Unique Content Section - SEO: Avoids doorway page penalty */}
+                    {/* Unique Content Section */}
                     {routeConfig.uniqueContent && (
                         <div className="w-full max-w-4xl mx-auto px-4 py-12 space-y-8">
                             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">

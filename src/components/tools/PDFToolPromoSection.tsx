@@ -60,7 +60,7 @@ export function PDFToolPromoSection({
                         </div>
                         <p className="mt-3 text-sm leading-6 text-slate-600">{tool.headline}</p>
                         <p className="mt-3 text-xs font-medium uppercase tracking-[0.2em] text-slate-400">
-                            Target keyword: {tool.targetKeyword}
+                            {tool.badge}
                         </p>
                     </Link>
                 ))}

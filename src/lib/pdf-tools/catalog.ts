@@ -47,7 +47,7 @@ export const PDF_TOOLS: PdfToolDefinition[] = [
         bullets: [
             'Removes Title, Author, Subject, Keywords, Creator, and Producer fields.',
             'Preserves visible text and page layout.',
-            'Makes metadata cleanup a top-of-funnel win before a deeper leak audit.',
+            'Makes metadata cleanup a strong first step before a deeper leak audit.',
         ],
         limitations: [
             'Metadata stripping does not prove covered text is gone.',
@@ -56,7 +56,7 @@ export const PDF_TOOLS: PdfToolDefinition[] = [
         resultHeading: 'Metadata cleanup summary',
         downloadPrefix: 'metadata-stripped',
         funnelTitle: 'Clean metadata is not the same as a safe PDF.',
-        funnelBody: 'Use the paid PDF Auditor to verify there is no ghost text, recoverable redaction layer, or annotation content still hiding in the file.',
+        funnelBody: 'Use the full PDF Auditor to verify there is no ghost text, recoverable redaction layer, or annotation content still hiding in the file.',
         funnelTargets: ['/auditor', '/'],
         relatedToolIds: ['comments-remover', 'hidden-text-remover', 'form-flattener'],
         routeConfig: {
@@ -98,7 +98,7 @@ export const PDF_TOOLS: PdfToolDefinition[] = [
         resultHeading: 'Markup removal summary',
         downloadPrefix: 'comments-removed',
         funnelTitle: 'Comments removed. Now test the file for real leaks.',
-        funnelBody: 'The paid Auditor checks whether redactions still expose ghost text, metadata, names, or dates after comment cleanup.',
+        funnelBody: 'The full Auditor checks whether redactions still expose ghost text, metadata, names, or dates after comment cleanup.',
         funnelTargets: ['/auditor', '/unredact'],
         relatedToolIds: ['metadata-stripper', 'hidden-text-remover', 'pii-scanner'],
         routeConfig: {
@@ -140,7 +140,7 @@ export const PDF_TOOLS: PdfToolDefinition[] = [
         resultHeading: 'Flattened export summary',
         downloadPrefix: 'hidden-text-removed',
         funnelTitle: 'Flattened is safer. Audited is defensible.',
-        funnelBody: 'Route users into the paid Auditor to prove the flattened file no longer contains ghost text, exposed names, or metadata leaks.',
+        funnelBody: 'Open the full Auditor to verify the flattened file no longer contains ghost text, exposed names, or metadata leaks.',
         funnelTargets: ['/auditor', '/'],
         relatedToolIds: ['metadata-stripper', 'comments-remover', 'form-flattener'],
         routeConfig: {
@@ -181,7 +181,7 @@ export const PDF_TOOLS: PdfToolDefinition[] = [
         ],
         resultHeading: 'PII scan findings',
         funnelTitle: 'Turn this triage into a certified audit.',
-        funnelBody: 'If the scanner finds names, dates, metadata, or ghost text, send users to the paid Auditor for the deeper vulnerability report and remediation proof.',
+        funnelBody: 'If the scanner finds names, dates, metadata, or ghost text, continue into the full Auditor for deeper review and remediation proof.',
         funnelTargets: ['/auditor', '/'],
         relatedToolIds: ['metadata-stripper', 'comments-remover', 'hidden-text-remover'],
         routeConfig: {
@@ -214,7 +214,7 @@ export const PDF_TOOLS: PdfToolDefinition[] = [
         bullets: [
             'Flattens editable AcroForm fields into fixed page content.',
             'Useful for applications, intake forms, contracts, and signed packets.',
-            'Creates a strong funnel into the paid audit for final outbound QA.',
+            'Creates a strong handoff into the full audit for final outbound QA.',
         ],
         limitations: [
             'Flattening a form does not verify hidden metadata or recoverable redaction layers.',
@@ -223,7 +223,7 @@ export const PDF_TOOLS: PdfToolDefinition[] = [
         resultHeading: 'Form flattening summary',
         downloadPrefix: 'form-flattened',
         funnelTitle: 'Flattened forms still deserve a final safety check.',
-        funnelBody: 'Send users into the paid Auditor to verify the flattened PDF no longer exposes metadata, hidden annotation text, or risky redaction artifacts.',
+        funnelBody: 'Use the full Auditor to verify the flattened PDF no longer exposes metadata, hidden annotation text, or risky redaction artifacts.',
         funnelTargets: ['/auditor', '/'],
         relatedToolIds: ['metadata-stripper', 'comments-remover', 'hidden-text-remover'],
         routeConfig: {

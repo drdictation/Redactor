@@ -166,7 +166,7 @@ export function PDFToolPage() {
                     </Link>
                     <div className="flex items-center gap-2 text-sm">
                         <Link to="/auditor" className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 font-medium text-indigo-700 hover:bg-indigo-100">
-                            Paid Auditor
+                            PDF Auditor
                         </Link>
                         <Link to="/" className="rounded-lg border border-slate-200 px-3 py-2 font-medium text-slate-700 hover:bg-slate-100">
                             Redaction Tool
@@ -200,7 +200,7 @@ export function PDFToolPage() {
                         <div className="rounded-3xl border border-slate-200 bg-slate-900 p-8 text-white shadow-sm">
                             <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-amber-300">
                                 <Lock className="h-4 w-4" />
-                                Funnel to paid tools
+                                Recommended next steps
                             </div>
                             <h2 className="mt-4 text-2xl font-bold">{tool.funnelTitle}</h2>
                             <p className="mt-4 text-sm leading-6 text-slate-300">{tool.funnelBody}</p>
@@ -211,7 +211,7 @@ export function PDFToolPage() {
                                         to={target}
                                         className="flex items-center justify-between rounded-2xl border border-slate-700 bg-slate-800 px-4 py-3 text-sm font-medium text-white hover:border-indigo-400 hover:bg-slate-700"
                                     >
-                                        <span>{target === '/auditor' ? 'Open the paid PDF Auditor' : 'Open the paid redaction workflow'}</span>
+                                        <span>{target === '/auditor' ? 'Open the full PDF Auditor' : 'Open the redaction workflow'}</span>
                                         <span>→</span>
                                     </Link>
                                 ))}
@@ -267,7 +267,7 @@ export function PDFToolPage() {
                             <h2 className="text-xl font-bold text-slate-900">{tool.resultHeading}</h2>
                             {!result ? (
                                 <p className="mt-4 text-sm leading-6 text-slate-500">
-                                    Process a file to see verification metrics, download output, and jump into the paid tools that close the loop.
+                                    Process a file to see verification metrics, download output, and continue into the full review workflow if you need deeper verification.
                                 </p>
                             ) : (
                                 <div className="mt-6 space-y-4">

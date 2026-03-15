@@ -1,3 +1,5 @@
+import { PDF_TOOL_ROUTE_CONFIG } from './pdf-tools/catalog';
+
 export interface RouteConfig {
     path: string;
     primarySearchIntent: string; // Internal note for SEO intent
@@ -307,9 +309,8 @@ export function getRouteConfig(pathname: string): RouteConfig {
     const normalizedPath = pathname === '/' ? pathname : pathname.replace(/\/+$/, '');
 
     // 2. Lookup
-    const config = ROUTE_CONFIG[normalizedPath];
+    const config = ROUTE_CONFIG[normalizedPath] || PDF_TOOL_ROUTE_CONFIG[normalizedPath];
 
     // 3. Fallback (Soft 404 Safeguard)
     return config || ROUTE_CONFIG['/'];
 }
-

@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { Workspace } from './components/core/Workspace';
 import { AuditorPage } from './components/auditor/AuditorPage';
 import { UnredactPage } from './components/unredact/UnredactPage';
+import { PDFToolPage } from './components/tools/PDFToolPage';
 import { SEOEnforcer } from './components/core/SEOEnforcer';
 
 // Check if we're on the audit subdomain
@@ -23,10 +24,11 @@ function App() {
   // Otherwise, show the main redaction tool with routing
   return (
     <>
-      <SEOEnforcer />
+        <SEOEnforcer />
       <Routes>
         <Route path="/auditor" element={<AuditorPage />} />
         <Route path="/unredact" element={<UnredactPage />} />
+        <Route path="/tools/:slug" element={<PDFToolPage />} />
         <Route path="/" element={<Workspace />} />
         <Route path="*" element={<Workspace />} />
       </Routes>

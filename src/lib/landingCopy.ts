@@ -20,6 +20,23 @@ export interface RouteConfig {
 }
 
 export const ROUTE_CONFIG: Record<string, RouteConfig> = {
+    '/tools': {
+        path: '/tools',
+        primarySearchIntent: 'Browse PDF utility tools',
+        h1: 'Browse PDF Tools',
+        securityHero: 'Cleanup, flatten, scan, and finalize PDFs locally in your browser.',
+        subhead: 'Explore focused PDF tools for metadata cleanup, comment removal, hidden-text flattening, sensitive-data scanning, and form finalization.',
+        items: [
+            { title: 'Grouped by Task', text: 'Browse tools by metadata cleanup, comments, flattening, scanning, and form finalization.' },
+            { title: 'Runs Locally', text: 'Every tool processes the document in your browser without uploading the file.' },
+            { title: 'Built for Safer Sharing', text: 'Use focused cleanup tools before sending PDFs to clients, counterparties, regulators, or partners.' },
+        ],
+        howThisWorks: 'Open a category, choose the tool that matches your PDF problem, and process the file directly in your browser.',
+        trustSignals: 'Local Processing • No Uploads • Task-Focused Tools',
+        ctaText: 'Browse PDF Tools',
+        metaTitle: 'PDF Tools Library | Cleanup, Flatten, and Scan PDFs',
+        metaDescription: 'Browse PDF tools for metadata cleanup, comment removal, hidden-text flattening, sensitive-data scanning, and form finalization.',
+    },
     '/': {
         path: '/',
         primarySearchIntent: 'General PDF Redaction',

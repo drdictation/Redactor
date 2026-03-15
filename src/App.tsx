@@ -4,6 +4,7 @@ import { Workspace } from './components/core/Workspace';
 import { AuditorPage } from './components/auditor/AuditorPage';
 import { UnredactPage } from './components/unredact/UnredactPage';
 import { PDFToolPage } from './components/tools/PDFToolPage';
+import { ToolsHubPage } from './components/tools/ToolsHubPage';
 import { SEOEnforcer } from './components/core/SEOEnforcer';
 
 // Check if we're on the audit subdomain
@@ -28,6 +29,7 @@ function App() {
       <Routes>
         <Route path="/auditor" element={<AuditorPage />} />
         <Route path="/unredact" element={<UnredactPage />} />
+        <Route path="/tools" element={<ToolsHubPage />} />
         <Route path="/tools/:slug" element={<PDFToolPage />} />
         <Route path="/" element={<Workspace />} />
         <Route path="*" element={<Workspace />} />

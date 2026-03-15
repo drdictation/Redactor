@@ -4,6 +4,9 @@ export function Footer() {
     return (
         <footer className="mt-12 py-8 border-t border-gray-100 w-full animate-fade-in">
             <div className="max-w-4xl mx-auto px-4 flex flex-wrap justify-center gap-6 text-sm text-gray-500">
+                <Link to="/tools" className="hover:text-gray-900 transition-colors">
+                    All PDF Tools
+                </Link>
                 <Link to="/tools/remove-pdf-metadata" className="hover:text-gray-900 transition-colors">
                     Remove PDF Metadata
                 </Link>
